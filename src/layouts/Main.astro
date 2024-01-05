@@ -1,0 +1,68 @@
+---
+import { site_config } from "../config/site";
+export interface Props {
+	/**
+	 * Will be added to the main title
+	 */
+	title?: string;
+	description?: string;
+}
+
+const props = Astro.props;
+---
+
+<html lang="en" dir="auto">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<title>{site_config.title}{props.title ? (" | " + props.title) : ""}</title>
+		<meta name="description" content={props.description || site_config.description} />
+	</head>
+	<body>
+		<slot />
+	</body>
+	<style is:global>
+	:root {
+		--background: 0 0% 95%;
+		--text: 0 0% 5%;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:root {
+			--background: 0 0% 5%;
+			--text: 0 0% 95%;
+		}
+	}
+
+	*,
+	::before,
+	::after {
+		box-sizing: inherit;
+	}
+
+	html {
+		box-sizing: border-box;
+	}
+
+	html:focus-within {
+		scroll-behavior: smooth;
+	}
+
+	body {
+		margin: 0;
+
+		line-height: 1.6;
+		-webkit-text-size-adjust: 100%;
+		font-family: system-ui, sans-serif;
+		font-size: 18px;
+
+		background: hsl(var(--background));
+		color: hsl(var(--text));
+		
+		min-height: 100dvh;
+		display: grid;
+		place-items: center;
+	}
+	</style>
+</html>
+
