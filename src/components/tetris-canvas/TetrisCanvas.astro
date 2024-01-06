@@ -1,6 +1,6 @@
 ---
 
-import { gen_random_id } from "../../lib/utils";
+import { gen_random_id } from "../../lib/utils/string-utils";
 export interface Props {
 	/**
 	 * Whether this is a player's canvas. If so, we listen for their key press events
@@ -20,6 +20,7 @@ const id = gen_random_id();
 		{props.is_player_canvas &&
 			<canvas
 				data-type="swap-canvas"
+				data-id={id}
 				id={id + "-swap"}
 				width="100"
 				height="100"
@@ -28,15 +29,17 @@ const id = gen_random_id();
 		}
 		<canvas
 			id={id}
+			data-id={id}
 			data-type="arena-canvas"
 			data-isplayer={props.is_player_canvas}
 			data-scale={props.scale}
-			width="300"
-			height="600"
+			width="200"
+			height="400"
 		>
 		</canvas>
 		{props.is_player_canvas &&
 			<canvas
+				data-id={id}
 				data-type="next-tetromino-canvas"
 				id={id + "-next-tetromino"}
 				width="100"
@@ -50,7 +53,7 @@ const id = gen_random_id();
 
 <style>
 canvas {
-	border: 1px solid hsl(var(--foreground));
+	border: 1px solid hsl(var(--text));
 	touch-action: none;
 }
 
@@ -67,6 +70,7 @@ canvas {
 
 .canvas-inner-container {
 	display: flex;
+	gap: 2rem;
 }
 .canvas-container {
 	display: grid;

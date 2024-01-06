@@ -1,6 +1,7 @@
 ---
 import TetrisCanvas from "../components/tetris-canvas/TetrisCanvas.astro";
 import Main from "../layouts/Main.astro";
+import { tetromino_config } from "../config/tetromino";
 
 ---
 
@@ -10,7 +11,104 @@ import Main from "../layouts/Main.astro";
 		is_player_canvas={true}
 		scale={20}
 	/>
-	<script src="../components/tetris-canvas/tetromino">
+	<img src={`/${tetromino_config.sprite_image_name}`} alt=" " hidden role="presentation" id="tetromino-spritesheet"  />
+	<script>
+		import { tetromino_config } from "../config/tetromino";
+import { Stage } from "../lib/stage/stage";
+import tetrominoes from "../lib/tetromino/tetrominoes";
+import { XY } from "../lib/xy";
+
+		const canvases = document.querySelectorAll("canvas");
+		const main_canvases: HTMLCanvasElement[] = [];
+		const swap_canvases: HTMLCanvasElement[] = [];
+		const next_tetromino_canvases: HTMLCanvasElement[] = [];
+
+		canvases.forEach((canvas) => {
+			if (canvas.getAttribute("data-type") === "arena-canvas") {
+				main_canvases.push(canvas);
+			} else if (canvas.getAttribute("data-type") === "swap-canvas") {
+				swap_canvases.push(canvas);
+			} else if (canvas.getAttribute("data-type") === "next-tetromino-canvas") {
+				next_tetromino_canvases.push(canvas);
+			}
+		})
+
+		const stage = new Stage({
+			main_canvas: main_canvases[0]!,
+			swapped_block_canvas: swap_canvases[0]!,
+			next_block_canvas: next_tetromino_canvases[0]!
+		}, {
+			game_map_dimensions: new XY(10, 20),
+			block_size: tetromino_config.size,
+			blocks: tetrominoes.tetrominoes_with_sprite
+			
+		}, {
+			lock_delay: 1000,
+			max_lock_resets: 10,
+			gravity: 0.5
+		});
+
+		stage.start();
+
+		let did_rotate = false;
+
+		window.addEventListener("keydown", (event) => {
+			const key = event.key;
+
+			switch (key) {
+				case "ArrowDown":
+				case "s":
+					stage.change_is_soft_dropping(true);
+				break;
+				case "ArrowUp":
+				case "w": {
+					if (did_rotate) {
+						return;
+					}
+
+					stage.commands.rotate_block(1);
+					did_rotate = true;
+				}
+				break;
+				case "ArrowLeft":
+				case "a":
+					stage.change_is_moving_left(true);
+				break;
+				case "ArrowRight":
+				case "d":
+					stage.change_is_moving_right(true);
+				break;
+				case " ":
+					stage.commands.hard_drop();
+				break;
+				case "Shift":
+					stage.swap_blocks();
+				break;
+			}
+		});
+
+		window.addEventListener("keyup", (event) => {
+			const key = event.key;
+
+			switch (key) {
+				case "ArrowLeft":
+				case "a":
+					stage.change_is_moving_left(false);
+				break;
+				case "ArrowRight":
+				case "d":
+					stage.change_is_moving_right(false);
+				break;
+				case "ArrowDown":
+				case "s":
+					stage.change_is_soft_dropping(false);
+				break;
+				case "ArrowUp":
+				case "w":
+					did_rotate = false;
+				break;
+			}
+		});
 	</script>
 </Main>
 

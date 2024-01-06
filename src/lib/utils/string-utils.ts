@@ -21,7 +21,9 @@ function gen_random_id(): string {
 				lower_case_start_charcode,
 				lower_case_end_charcode,
 			);
-			id += uppercase_char_by_half_chance(String.fromCharCode(random_char));
+			id += uppercase_char_by_half_chance(
+				String.fromCharCode(random_char),
+			);
 		} else {
 			const random_char = range(num_start_charcode, num_end_charcode);
 			id += String.fromCharCode(random_char);
@@ -31,7 +33,4 @@ function gen_random_id(): string {
 	return id;
 }
 
-export {
-	gen_random_id,
-	uppercase_char_by_half_chance,
-}
+export { gen_random_id, uppercase_char_by_half_chance };

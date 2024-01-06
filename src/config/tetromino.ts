@@ -1,5 +1,11 @@
 export const tetromino_config = {
 	max_rotations: 4,
+	size: 20,
+	sprite_image_name: "sprite1.png",
+	sprite_block_size: 7,
+	spritesheet_block_space: 0,
+	spritesheet_margin_x: 8,
+	spritesheet_margin_y: 1,
 } as const;
 
 /**

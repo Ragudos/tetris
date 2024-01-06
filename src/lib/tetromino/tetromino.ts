@@ -1,19 +1,34 @@
-import type { ROTATION_DIR } from "./types";
+import type { ROTATION_DIR } from "../types";
 
-import {
-	is_square_matrix,
-	rotate_matrix
-} from "./utils/matrix-utils";
+import { is_square_matrix, rotate_matrix } from "../utils/matrix-utils";
 
 import {
 	double_loop,
 	multiply_and_add_products,
 	modulo,
-} from "./utils/general-utils";
+} from "../utils/general-utils";
 
-import { tetromino_config } from "../config/tetromino";
-import { ImageInfo } from "./image-info";
-import { XY } from "./xy";
+import { tetromino_config } from "../../config/tetromino";
+import { ImageInfo } from "../image-info";
+import { XY } from "../xy";
+
+interface BaseDrawOptions {
+	should_loop: boolean;
+	custom_x?: number;
+	custom_y?: number;
+}
+
+interface DrawOptionsWithLoop extends BaseDrawOptions {
+	should_loop: true;
+}
+
+interface DrawOptionsWithoutLoop extends BaseDrawOptions {
+	should_loop: false;
+	custom_x: number;
+	custom_y: number;
+}
+
+type DrawOptions = DrawOptionsWithLoop | DrawOptionsWithoutLoop;
 
 export interface TetrominoInterface {
 	name: string;
@@ -24,6 +39,7 @@ export interface TetrominoInterface {
 	color: string;
 	draw(
 		context: CanvasRenderingContext2D,
+		options: DrawOptions,
 	): ThisParameterType<TetrominoInterface>;
 	rotate(dir: ROTATION_DIR): ThisParameterType<TetrominoInterface>;
 	clone(): TetrominoInterface;
@@ -90,13 +106,15 @@ abstract class Tetromino implements TetrominoInterface {
 	}
 
 	/**
-	 * 
-	 * @param context 
+	 *
+	 * @param context
+	 * @param options If should_loop is false, custom_x and custom_y must be provided.
 	 * @returns The tetromino instance.
-	 * @throws Error thrown by {@link double_loop}
+	 * @throws Error thrown by {@link double_loop} and if should_loop is true
 	 */
 	public abstract draw(
 		context: CanvasRenderingContext2D,
+		options: DrawOptions,
 	): ThisParameterType<TetrominoInterface>;
 
 	/**
@@ -114,10 +132,18 @@ abstract class Tetromino implements TetrominoInterface {
 	public rotate(dir: ROTATION_DIR): ThisParameterType<TetrominoInterface> {
 		rotate_matrix(dir, this.__current_shape);
 
+		const new_rotation = this.__current_rotation + dir;
+		const abs_value = Math.abs(new_rotation);
+
+		if (abs_value > max_rotations) {
+			this.__current_rotation = 0;
+			return this;
+		}
+
 		this.__current_rotation = modulo(
-			this.__current_rotation + dir,
+			abs_value,
 			max_rotations,
-		);
+		) * dir;
 
 		return this;
 	}
@@ -232,32 +258,39 @@ class TetrominoWithoutSprite extends Tetromino {
 		);
 	}
 
-	
 	public override draw(
 		context: CanvasRenderingContext2D,
+		options: DrawOptions,
 	): ThisParameterType<TetrominoInterface> {
+		const should_loop = options.should_loop;
+
 		const s = this.shape;
 		const p = this.position;
 		const size = this.size;
 
-		double_loop(
-			(y, x) => {
-				// @ts-expect-error s[y][x] gives an error of undefined
-				if (!s[y] || s[y][x] === 0) {
-					return;
-				}
+		if (!should_loop) {
+			context.fillStyle = this.color;
+			context.fillRect(options.custom_x, options.custom_y, size, size);
+		} else {
+			double_loop(
+				(y, x) => {
+					// @ts-expect-error s[y][x] gives an error of undefined
+					if (!s[y] || s[y][x] === 0) {
+						return;
+					}
 
-				context.fillStyle = this.color;
-				context.fillRect(
-					multiply_and_add_products(size, p.x, x),
-					multiply_and_add_products(size, p.y, y),
-					size,
-					size,
-				);
-			},
-			s.length,
-			s.length,
-		);
+					context.fillStyle = this.color;
+					context.fillRect(
+						multiply_and_add_products(size, p.x, x),
+						multiply_and_add_products(size, p.y, y),
+						size,
+						size,
+					);
+				},
+				s.length,
+				s.length,
+			);
+		}
 
 		return this;
 	}
@@ -302,34 +335,50 @@ class TetrominoWithSprite extends Tetromino {
 
 	public override draw(
 		context: CanvasRenderingContext2D,
+		options: DrawOptions,
 	): ThisParameterType<TetrominoInterface> {
+		const should_loop = options.should_loop;
 		const s = this.shape;
 		const p = this.position;
 		const i = this.__image_info;
 		const size = this.size;
 
-		double_loop(
-			(y, x) => {
-				// @ts-expect-error s[y][x] gives an error of undefined
-				if (!s[y] || s[y][x] === 0) {
-					return;
-				}
+		if (!should_loop) {
+			context.drawImage(
+				i.image_source,
+				i.position.x,
+				i.position.y,
+				i.size.x,
+				i.size.y,
+				options.custom_x,
+				options.custom_y,
+				size,
+				size,
+			);
+		} else {
+			double_loop(
+				(y, x) => {
+					// @ts-expect-error s[y][x] gives an error of undefined
+					if (!s[y] || s[y][x] === 0) {
+						return;
+					}
 
-				context.drawImage(
-					i.image_source,
-					i.position.x,
-					i.position.y,
-					i.size.x,
-					i.size.y,
-					multiply_and_add_products(size, p.x, x),
-					multiply_and_add_products(size, p.y, y),
-					size,
-					size,
-				);
-			},
-			s.length,
-			s.length,
-		);
+					context.drawImage(
+						i.image_source,
+						i.position.x,
+						i.position.y,
+						i.size.x,
+						i.size.y,
+						multiply_and_add_products(size, p.x, x),
+						multiply_and_add_products(size, p.y, y),
+						size,
+						size,
+					);
+				},
+				s.length,
+				s.length,
+			);
+		}
 
 		return this;
 	}
@@ -348,8 +397,8 @@ class TetrominoWithSprite extends Tetromino {
 			this.size,
 			new ImageInfo(
 				img.image_source,
+				new XY(img.size.x, img.size.y),
 				new XY(img.position.x, img.position.y),
-				img.size,
 			),
 		);
 	}

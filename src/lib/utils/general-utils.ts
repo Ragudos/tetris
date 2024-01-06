@@ -1,5 +1,5 @@
 type DoubleLoopCallback = (y: number, x: number) => void;
-type IsTrueAtleastOnceCallback = (y: number, x: number) => boolean;
+type IsTrueAtleastOnceCallback = (y: number, x: number) => boolean | undefined;
 
 /**
  * Performs a double loop and calls the callback per x. If either x_max or y_max is less than or equal to 0, then this

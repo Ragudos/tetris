@@ -48,19 +48,13 @@ function rotate_matrix<T>(dir: ROTATION_DIR, m: T[][]): T[][] {
 							m,
 							last_idx,
 							last_idx_offset,
-                            x,
-                            y
+							x,
+							y,
 						);
 					}
 					break;
 				case 1: {
-					rotate_matrix_clockwise(
-						m,
-						last_idx,
-						last_idx_offset,
-                        x,
-                        y
-					);
+					rotate_matrix_clockwise(m, last_idx, last_idx_offset, x, y);
 				}
 			}
 		}
@@ -86,8 +80,8 @@ function rotate_matrix_clockwise<T>(
 	m: T[][],
 	last_idx: number,
 	last_idx_offset: number,
-    x: number,
-    y: number,
+	x: number,
+	y: number,
 ): T[][] {
 	// @ts-expect-error
 	const tmp = m[last_idx_offset][y];
@@ -121,8 +115,8 @@ function rotate_matrix_counterclockwise<T>(
 	m: T[][],
 	last_idx: number,
 	last_idx_offset: number,
-    x: number,
-    y: number,
+	x: number,
+	y: number,
 ): T[][] {
 	// @ts-expect-error
 	const tmp = m[y][x];
@@ -140,8 +134,8 @@ function rotate_matrix_counterclockwise<T>(
 }
 
 export {
-    is_square_matrix,
-    rotate_matrix,
-    rotate_matrix_clockwise,
-    rotate_matrix_counterclockwise,
-}
+	is_square_matrix,
+	rotate_matrix,
+	rotate_matrix_clockwise,
+	rotate_matrix_counterclockwise,
+};
