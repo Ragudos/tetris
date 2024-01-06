@@ -1,20 +1,25 @@
 {
-  "name": "",
-  "type": "module",
-  "version": "0.0.1",
-  "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "astro": "^4.0.9"
-  },
-  "devDependencies": {
-    "prettier": "^3.1.1",
-    "prettier-plugin-astro": "^0.12.3",
-    "typescript": "^5.3.3"
-  }
+	"name": "Tetris",
+	"description": "A simple Tetris web game made with love using Vanilla JS and Astro to built to website.",
+	"private": true,
+	"license": "MIT",
+	"author": "Aaron Ragudos <workemailaaronragudos@gmail.com>",
+	"type": "module",
+	"version": "0.0.1",
+	"scripts": {
+		"dev": "astro dev",
+		"start": "astro dev",
+		"build": "astro build",
+		"preview": "astro preview",
+		"astro": "astro",
+		"format": "prettier --write ."
+	},
+	"dependencies": {
+		"astro": "^4.0.9"
+	},
+	"devDependencies": {
+		"prettier": "^3.1.1",
+		"prettier-plugin-astro": "^0.12.3",
+		"typescript": "^5.3.3"
+	}
 }
