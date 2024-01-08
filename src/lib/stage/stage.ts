@@ -4,6 +4,7 @@ import { StageCommands } from "./stage-commands";
 import type { TetrominoInterface } from "../tetromino/tetromino";
 import { Timer } from "../timer";
 import type { XY } from "../xy";
+import TetrominoBag from "../tetromino/bag";
 
 export interface StageCanvas {
 	main_canvas: HTMLCanvasElement;
@@ -122,6 +123,7 @@ export class Stage implements StageInterface {
 	private __swapped_block: null | TetrominoInterface;
 
 	private __gravity: number;
+	private __x_pull_limit: number;
 	private __x_pull: number;
 	private __soft_drop_gravity: number;
 	private __gravity_in_milliseconds: number;
@@ -142,6 +144,8 @@ export class Stage implements StageInterface {
 	private __blocks: TetrominoInterface[];
 	// Y position of ghost
 	private __ghost_y: number;
+
+	private __bag: TetrominoBag;
 
 	constructor(
 		canvas: StageCanvas,
@@ -191,7 +195,8 @@ export class Stage implements StageInterface {
 		this.__swapped_block = null;
 
 		this.__gravity = options.gravity;
-		this.__x_pull = 100;
+		this.__x_pull_limit = 20;
+		this.__x_pull = 200;
 		this.__soft_drop_gravity = Math.trunc(30 * this.__gravity);
 		this.__gravity_in_milliseconds = Math.trunc(1000 / this.__gravity);
 		this.__soft_drop_gravity_in_milliseconds =
@@ -209,6 +214,8 @@ export class Stage implements StageInterface {
 		this.__can_swap = true;
 		this.__is_game_over = false;
 		this.__ghost_y = this.__square_count_y;
+
+		this.__bag = new TetrominoBag(this.__blocks);
 
 		this.commands = new StageCommands(this);
 		this.animator = new StageAnimator(this);
@@ -258,6 +265,7 @@ export class Stage implements StageInterface {
 			this.__gravity_in_milliseconds
 		) {
 			this.commands.move_block_down();
+			
 			this.__time_elapsed_since_last_drop = 0;
 		}
 	}
@@ -269,6 +277,12 @@ export class Stage implements StageInterface {
 				this.__x_pull
 			) {
 				this.commands.move_block_right();
+				const new_x_pull = this.__x_pull -  Math.ceil(this.__x_pull * 0.175);
+
+				if (new_x_pull > this.__x_pull_limit) {
+					this.__x_pull = new_x_pull;
+				}
+
 				this.__time_elapsed_since_last_movement = 0;
 			}
 		}
@@ -281,6 +295,13 @@ export class Stage implements StageInterface {
 				this.__x_pull
 			) {
 				this.commands.move_block_left();
+
+				const new_x_pull = this.__x_pull -  Math.ceil(this.__x_pull * 0.175);
+
+				if (new_x_pull > this.__x_pull_limit) {
+					this.__x_pull = new_x_pull;
+				}
+
 				this.__time_elapsed_since_last_movement = 0;
 			}
 		}
@@ -304,6 +325,10 @@ export class Stage implements StageInterface {
 		this.handle_move_left();
 
 		this.__time_elapsed_since_start = time;
+	}
+
+	public reset_x_pull(): void {
+		this.__x_pull = 100;
 	}
 
 	public lock_block(): void {
@@ -340,6 +365,7 @@ export class Stage implements StageInterface {
 	public change_is_moving_right(state: boolean): ThisParameterType<Stage> {
 		if (state && this.__is_moving_left) {
 			this.change_is_moving_left(false);
+			this.reset_x_pull();
 		}
 
 		this.__is_moving_right = state;
@@ -350,6 +376,7 @@ export class Stage implements StageInterface {
 	public change_is_moving_left(state: boolean): ThisParameterType<Stage> {
 		if (state && this.__is_moving_right) {
 			this.change_is_moving_right(false);
+			this.reset_x_pull();
 		}
 
 		this.__is_moving_left = state;
@@ -378,12 +405,14 @@ export class Stage implements StageInterface {
 		this.__lock_delay_restarts = 0;
 
 		if (!this.__swapped_block) {
+			this.reset_block(this.__current_block!);
 			this.__swapped_block = this.__current_block;
 			this.__swapped_block?.change_position(0, 0);
 			this.__current_block = this.__next_block;
 			this.reset_block(this.__current_block!);
 			this.__next_block = this.commands.get_random_block();
 		} else {
+			this.reset_block(this.__current_block!);
 			const temp = this.__current_block;
 			this.__current_block = this.__swapped_block;
 			this.__swapped_block = temp;
@@ -439,6 +468,10 @@ export class Stage implements StageInterface {
 	public game_over(): void {
 		this.stop();
 		this.__is_game_over = true;
+	}
+
+	get bag(): TetrominoBag {
+		return this.__bag;
 	}
 
 	get ghost_y(): number {

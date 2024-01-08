@@ -144,7 +144,6 @@ class StageAnimator {
 		sc.clearRect(0, 0, sc.canvas.width, sc.canvas.height);
 		nbc.clearRect(0, 0, nbc.canvas.width, nbc.canvas.height);
 
-		this.draw_main_canvas();
 		this.draw_game_map();
 		this.draw_ghost();
 		this.draw_swapped_block();

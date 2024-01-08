@@ -1,8 +1,7 @@
 import type { Stage } from "./stage";
 import type { ROTATION_DIR } from "../types";
-import { double_loop, is_true_atleast_once, range } from "../utils/general-utils";
+import { double_loop, is_true_atleast_once } from "../utils/general-utils";
 import type { TetrominoInterface } from "../tetromino/tetromino";
-import tetrominoes from "../tetromino/tetrominoes";
 import { rotate_matrix } from "../utils/matrix-utils";
 import { XY } from "../xy";
 import { srs_kick_data } from "../../config/tetromino";
@@ -164,9 +163,7 @@ export class StageCommands implements StageCommandsInterface {
 	}
 
 	public get_random_block(): TetrominoInterface {
-		return this.__stage.blocks[
-			range(0, tetrominoes.tetrominoes_with_sprite.length - 1)
-		]!.clone();
+		return this.__stage.bag.get_tetromino().clone();
 	}
 
 	public rotate_block(dir: ROTATION_DIR): void {

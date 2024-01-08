@@ -94,10 +94,12 @@ import { XY } from "../lib/xy";
 				case "ArrowLeft":
 				case "a":
 					stage.change_is_moving_left(false);
+					stage.reset_x_pull();
 				break;
 				case "ArrowRight":
 				case "d":
 					stage.change_is_moving_right(false);
+					stage.reset_x_pull();
 				break;
 				case "ArrowDown":
 				case "s":
