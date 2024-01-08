@@ -12,11 +12,14 @@ import { tetromino_config } from "../config/tetromino";
 		scale={20}
 	/>
 	<img src={`/${tetromino_config.sprite_image_name}`} alt=" " hidden role="presentation" id="tetromino-spritesheet"  />
+	<audio src="/sfx/tetris-drop.mp3" hidden id="drop-sfx" preload="auto" />
 	<script>
 		import { tetromino_config } from "../config/tetromino";
-import { Stage } from "../lib/stage/stage";
-import tetrominoes from "../lib/tetromino/tetrominoes";
-import { XY } from "../lib/xy";
+		import { Stage } from "../lib/stage/stage";
+		import tetrominoes from "../lib/tetromino/tetrominoes";
+		import { XY } from "../lib/xy";
+		import "../lib/game/audio/drop";
+		import "../lib/game/audio/hold";
 
 		const canvases = document.querySelectorAll("canvas");
 		const main_canvases: HTMLCanvasElement[] = [];
@@ -111,7 +114,6 @@ import { XY } from "../lib/xy";
 				break;
 			}
 		});
-
 	</script>
 </Main>
 

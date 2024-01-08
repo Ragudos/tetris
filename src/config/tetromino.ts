@@ -8,6 +8,21 @@ export const tetromino_config = {
 	spritesheet_margin_y: 1,
 } as const;
 
+export const tetromino_colors = {
+	I: "cyan",
+};
+
+export const tetromino_default_shapes = {
+	srs: {
+		I: [
+			[0, 0, 0, 0],
+			[1, 1, 1, 1],
+			[0, 0, 0, 0],
+			[1, 1, 1, 1],
+		],
+	},
+};
+
 /**
  * SRS KICK DATA
  * @description

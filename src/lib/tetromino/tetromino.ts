@@ -150,7 +150,7 @@ abstract class Tetromino implements TetrominoInterface {
 	 * @returns The shape of the tetromino.
 	 */
 	public clone_shape(): number[][] {
-		return this.__current_shape.map((row) => [...row]);
+		return this.__current_shape.map((row) => row.slice());
 	}
 
 	/**

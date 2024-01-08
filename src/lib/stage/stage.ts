@@ -5,6 +5,7 @@ import type { TetrominoInterface } from "../tetromino/tetromino";
 import { Timer } from "../timer";
 import type { XY } from "../xy";
 import TetrominoBag from "../tetromino/bag";
+import tetrisEvents from "../events/tetris-events";
 
 export interface StageCanvas {
 	main_canvas: HTMLCanvasElement;
@@ -341,6 +342,7 @@ export class Stage implements StageInterface {
 		this.commands.clear_completed_row();
 		this.get_new_block();
 		this.commands.recalculate_ghost_y();
+		tetrisEvents.$emit("tetris:drop", { type: "hard", canvas_id: this.id });
 
 		this.__lock_delay_restarts = 0;
 	}
@@ -415,6 +417,7 @@ export class Stage implements StageInterface {
 			this.reset_block(this.__current_block!);
 		}
 
+		tetrisEvents.$emit("tetris:hold", { canvas_id: this.main_canvas.getAttribute("data-id")! });
 		this.__can_swap = false;
 		this.commands.recalculate_ghost_y();
 	}

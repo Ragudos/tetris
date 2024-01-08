@@ -161,7 +161,6 @@ export class StageCommands implements StageCommandsInterface {
 						// @ts-ignore
 						block.position.x + srs_kick_data[kick_idx][kick][0];
 					// Opposite integer value since we increase y in a Canvas when moving down.
-					// @ts-ignore
 					const new_pos_y =
 						block.position.y +
 						// @ts-ignore
@@ -241,8 +240,7 @@ export class StageCommands implements StageCommandsInterface {
 
 				if (
 					this.__stage.game_map[pos_y] &&
-					// @ts-ignore
-					this.__stage.game_map[pos_y][pos_x] !== null
+					this.__stage.game_map[pos_y]![pos_x] !== null
 				) {
 					this.__stage.game_over();
 					return;
@@ -321,7 +319,10 @@ export class StageCommands implements StageCommandsInterface {
 		}
 
 		block.change_position(block.position.y, block.position.x - 1);
-		tetris_events.$emit("tetris:move", { canvas_id: this.__stage.main_canvas.getAttribute("data-id")!, direction: block.position });
+		tetris_events.$emit("tetris:move", {
+			canvas_id: this.__stage.main_canvas.getAttribute("data-id")!,
+			direction: block.position,
+		});
 		this.__stage.reset_lock_timer();
 		this.recalculate_ghost_y();
 	}
@@ -338,7 +339,10 @@ export class StageCommands implements StageCommandsInterface {
 		}
 
 		block.change_position(block.position.y, block.position.x + 1);
-		tetris_events.$emit("tetris:move", { canvas_id: this.__stage.main_canvas.getAttribute("data-id")!, direction: block.position });
+		tetris_events.$emit("tetris:move", {
+			canvas_id: this.__stage.main_canvas.getAttribute("data-id")!,
+			direction: block.position,
+		});
 		this.__stage.reset_lock_timer();
 		this.recalculate_ghost_y();
 	}
