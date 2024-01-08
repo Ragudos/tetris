@@ -142,7 +142,7 @@ export class Tetrominoes {
 					new XY(
 						tetromino_config.spritesheet_margin_x,
 						tetromino_config.spritesheet_margin_y * 6 + 2,
-					)
+					),
 				),
 			),
 			new TetrominoWithSprite(
@@ -232,7 +232,7 @@ export class Tetrominoes {
 					),
 					new XY(
 						tetromino_config.spritesheet_margin_x * 2,
-						tetromino_config.spritesheet_margin_y * 6 + 10
+						tetromino_config.spritesheet_margin_y * 6 + 10,
 					),
 				),
 			),

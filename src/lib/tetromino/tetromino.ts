@@ -140,10 +140,7 @@ abstract class Tetromino implements TetrominoInterface {
 			return this;
 		}
 
-		this.__current_rotation = modulo(
-			abs_value,
-			max_rotations,
-		) * dir;
+		this.__current_rotation = modulo(abs_value, max_rotations) * dir;
 
 		return this;
 	}

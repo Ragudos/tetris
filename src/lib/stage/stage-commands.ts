@@ -5,6 +5,7 @@ import type { TetrominoInterface } from "../tetromino/tetromino";
 import { rotate_matrix } from "../utils/matrix-utils";
 import { XY } from "../xy";
 import { srs_kick_data } from "../../config/tetromino";
+import tetris_events from "../events/tetris-events";
 
 interface StageCommandsInterface {
 	rotate_block(dir: ROTATION_DIR): void;
@@ -46,7 +47,7 @@ interface StageCommandsInterface {
 		offset_right?: number,
 		offset_down?: number,
 		custom_position?: XY,
-		custom_shape?: T[][]
+		custom_shape?: T[][],
 	): boolean;
 	/**
 	 *
@@ -55,7 +56,11 @@ interface StageCommandsInterface {
 	 * @param [custom_shape] @default undefined
 	 * @returns
 	 */
-	is_colliding_left<T>(offset?: number, custom_position?: XY, custom_shape?: T[][]): boolean;
+	is_colliding_left<T>(
+		offset?: number,
+		custom_position?: XY,
+		custom_shape?: T[][],
+	): boolean;
 	/**
 	 *
 	 * @param offset @default 0
@@ -63,7 +68,11 @@ interface StageCommandsInterface {
 	 * @param [custom_shape] @default undefined
 	 * @returns
 	 */
-	is_colliding_right<T>(offset?: number, custom_position?: XY, custom_shape?: T[][]): boolean;
+	is_colliding_right<T>(
+		offset?: number,
+		custom_position?: XY,
+		custom_shape?: T[][],
+	): boolean;
 	/**
 	 *
 	 * @param offset @default 0
@@ -71,7 +80,11 @@ interface StageCommandsInterface {
 	 * @param [custom_shape] @default undefined
 	 * @returns
 	 */
-	is_colliding_up<T>(offset?: number, custom_position?: XY, custom_shape?: T[][]): boolean;
+	is_colliding_up<T>(
+		offset?: number,
+		custom_position?: XY,
+		custom_shape?: T[][],
+	): boolean;
 	/**
 	 *
 	 * @param offset @default 0
@@ -79,7 +92,11 @@ interface StageCommandsInterface {
 	 * @param [custom_shape] @default undefined
 	 * @returns
 	 */
-	is_colliding_down<T>(offset?: number, custom_position?: XY, custom_shape?: T[][]): boolean;
+	is_colliding_down<T>(
+		offset?: number,
+		custom_position?: XY,
+		custom_shape?: T[][],
+	): boolean;
 	clear_completed_row(): void;
 	recalculate_ghost_y(): void;
 }
@@ -91,7 +108,7 @@ export class StageCommands implements StageCommandsInterface {
 		this.__stage = stage;
 	}
 
-	private  is_there_a_completed_row<T>(map: T[][]): boolean {
+	private is_there_a_completed_row<T>(map: T[][]): boolean {
 		return map.some((row) => row.every((item) => !item));
 	}
 
@@ -101,7 +118,7 @@ export class StageCommands implements StageCommandsInterface {
 		if (!block) {
 			throw new Error("No block is currently active.");
 		}
-		
+
 		const is_i_block = block.name === "I" || block.name === "i";
 		const add_8 = is_i_block ? 8 : 0;
 
@@ -123,14 +140,16 @@ export class StageCommands implements StageCommandsInterface {
 				let kick_idx: number;
 
 				switch (dir) {
-					case -1: {
-						kick_idx = add_8 + (abs_curr_rotation % 4) + 4;
-					};
-					break;
-					case 1: {
-						kick_idx = add_8 + (abs_curr_rotation % 4);
-					};
-					break;
+					case -1:
+						{
+							kick_idx = add_8 + (abs_curr_rotation % 4) + 4;
+						}
+						break;
+					case 1:
+						{
+							kick_idx = add_8 + (abs_curr_rotation % 4);
+						}
+						break;
 				}
 
 				// We skip over 0th index since it's a normal rotation.
@@ -138,11 +157,15 @@ export class StageCommands implements StageCommandsInterface {
 				// so we do.
 				// @ts-ignore
 				for (let kick = 1; kick < srs_kick_data[0].length; ++kick) {
-					// @ts-ignore
-					const new_pos_x = block.position.x + srs_kick_data[kick_idx][kick][0];
+					const new_pos_x =
+						// @ts-ignore
+						block.position.x + srs_kick_data[kick_idx][kick][0];
 					// Opposite integer value since we increase y in a Canvas when moving down.
 					// @ts-ignore
-					const new_pos_y = block.position.y + srs_kick_data[kick_idx][kick][1] * -1;
+					const new_pos_y =
+						block.position.y +
+						// @ts-ignore
+						srs_kick_data[kick_idx][kick][1] * -1;
 					const new_XY = new XY(new_pos_x, new_pos_y);
 
 					if (this.is_colliding(0, 0, 0, 1, new_XY, tmp_shape)) {
@@ -216,8 +239,11 @@ export class StageCommands implements StageCommandsInterface {
 				const pos_x = block.position.x + x;
 				const pos_y = block.position.y + y;
 
-				// @ts-ignore
-				if (this.__stage.game_map[pos_y] && this.__stage.game_map[pos_y][pos_x] !== null) {
+				if (
+					this.__stage.game_map[pos_y] &&
+					// @ts-ignore
+					this.__stage.game_map[pos_y][pos_x] !== null
+				) {
 					this.__stage.game_over();
 					return;
 				} else {
@@ -230,14 +256,14 @@ export class StageCommands implements StageCommandsInterface {
 			},
 			//@ts-ignore
 			block.shape[0].length,
-			block.shape.length
+			block.shape.length,
 		);
 	}
 
 	public hard_drop(): void {
 		if (this.__stage.is_hard_dropping) {
 			return;
-		}	
+		}
 
 		const block = this.__stage.current_block;
 
@@ -295,6 +321,7 @@ export class StageCommands implements StageCommandsInterface {
 		}
 
 		block.change_position(block.position.y, block.position.x - 1);
+		tetris_events.$emit("tetris:move", { canvas_id: this.__stage.main_canvas.getAttribute("data-id")!, direction: block.position });
 		this.__stage.reset_lock_timer();
 		this.recalculate_ghost_y();
 	}
@@ -311,6 +338,7 @@ export class StageCommands implements StageCommandsInterface {
 		}
 
 		block.change_position(block.position.y, block.position.x + 1);
+		tetris_events.$emit("tetris:move", { canvas_id: this.__stage.main_canvas.getAttribute("data-id")!, direction: block.position });
 		this.__stage.reset_lock_timer();
 		this.recalculate_ghost_y();
 	}
@@ -321,7 +349,7 @@ export class StageCommands implements StageCommandsInterface {
 		offset_right: number = 0,
 		offset_down: number = 0,
 		custom_position?: XY,
-		custom_shape?: T[][]
+		custom_shape?: T[][],
 	): boolean {
 		const block = this.__stage.current_block;
 
@@ -345,8 +373,10 @@ export class StageCommands implements StageCommandsInterface {
 
 				const curr_position = block.position;
 
-				const real_x = (custom_position ? custom_position.x : curr_position.x) + x;
-				const real_y = (custom_position ? custom_position.y : curr_position.y) + y;
+				const real_x =
+					(custom_position ? custom_position.x : curr_position.x) + x;
+				const real_y =
+					(custom_position ? custom_position.y : curr_position.y) + y;
 
 				return (
 					real_x - offset_left < 0 ||
@@ -364,7 +394,11 @@ export class StageCommands implements StageCommandsInterface {
 		);
 	}
 
-	public is_colliding_left<T>(offset: number = 0, custom_position?: XY, custom_shape?: T[][]): boolean {
+	public is_colliding_left<T>(
+		offset: number = 0,
+		custom_position?: XY,
+		custom_shape?: T[][],
+	): boolean {
 		const block = this.__stage.current_block;
 
 		if (!block) {
@@ -387,8 +421,12 @@ export class StageCommands implements StageCommandsInterface {
 
 				const curr_position = block.position;
 
-				const real_x = (custom_position ? custom_position.x : curr_position.x) + x - offset;
-				const real_y = (custom_position ? custom_position.y : curr_position.y) + y;
+				const real_x =
+					(custom_position ? custom_position.x : curr_position.x) +
+					x -
+					offset;
+				const real_y =
+					(custom_position ? custom_position.y : curr_position.y) + y;
 
 				return (
 					// @ts-ignore
@@ -403,7 +441,11 @@ export class StageCommands implements StageCommandsInterface {
 		);
 	}
 
-	public is_colliding_right<T>(offset: number = 0, custom_position?: XY, custom_shape?: T[][]): boolean {
+	public is_colliding_right<T>(
+		offset: number = 0,
+		custom_position?: XY,
+		custom_shape?: T[][],
+	): boolean {
 		const block = this.__stage.current_block;
 
 		if (!block) {
@@ -426,8 +468,12 @@ export class StageCommands implements StageCommandsInterface {
 
 				const curr_position = block.position;
 
-				const real_x = (custom_position ? custom_position.x : curr_position.x) + x + offset;
-				const real_y = (custom_position ? custom_position.y : curr_position.y) + y;
+				const real_x =
+					(custom_position ? custom_position.x : curr_position.x) +
+					x +
+					offset;
+				const real_y =
+					(custom_position ? custom_position.y : curr_position.y) + y;
 
 				return (
 					real_x < 0 ||
@@ -441,7 +487,11 @@ export class StageCommands implements StageCommandsInterface {
 		);
 	}
 
-	public is_colliding_up<T>(offset: number = 0, custom_position?: XY, custom_shape?: T[][]): boolean {
+	public is_colliding_up<T>(
+		offset: number = 0,
+		custom_position?: XY,
+		custom_shape?: T[][],
+	): boolean {
 		const block = this.__stage.current_block;
 
 		if (!block) {
@@ -464,8 +514,12 @@ export class StageCommands implements StageCommandsInterface {
 
 				const curr_position = block.position;
 
-				const real_x = (custom_position ? custom_position.x : curr_position.x) + x;
-				const real_y = (custom_position ? custom_position.y : curr_position.y) + y - offset;
+				const real_x =
+					(custom_position ? custom_position.x : curr_position.x) + x;
+				const real_y =
+					(custom_position ? custom_position.y : curr_position.y) +
+					y -
+					offset;
 
 				return (
 					real_y < 0 ||
@@ -479,7 +533,11 @@ export class StageCommands implements StageCommandsInterface {
 		);
 	}
 
-	public is_colliding_down<T>(offset: number = 0, custom_position?: XY, custom_shape?: T[][]): boolean {
+	public is_colliding_down<T>(
+		offset: number = 0,
+		custom_position?: XY,
+		custom_shape?: T[][],
+	): boolean {
 		const block = this.__stage.current_block;
 
 		if (!block) {
@@ -488,7 +546,6 @@ export class StageCommands implements StageCommandsInterface {
 
 		return is_true_atleast_once(
 			(y, x) => {
-
 				if (custom_shape) {
 					// @ts-ignore
 					if (custom_shape[y][x] === 0) {
@@ -503,8 +560,12 @@ export class StageCommands implements StageCommandsInterface {
 
 				const curr_position = block.position;
 
-				const real_x = (custom_position ? custom_position.x : curr_position.x) + x;
-				const real_y = (custom_position ? custom_position.y : curr_position.y) + y + offset;
+				const real_x =
+					(custom_position ? custom_position.x : curr_position.x) + x;
+				const real_y =
+					(custom_position ? custom_position.y : curr_position.y) +
+					y +
+					offset;
 
 				return (
 					real_y >= this.__stage.game_map.length ||
@@ -517,7 +578,7 @@ export class StageCommands implements StageCommandsInterface {
 			block.shape[0]!.length,
 		);
 	}
-	
+
 	public clear_completed_row(): void {
 		if (!this.is_there_a_completed_row(this.__stage.game_map)) {
 			return;
@@ -526,17 +587,17 @@ export class StageCommands implements StageCommandsInterface {
 		for (let fy = 0; fy < this.__stage.game_map.length; ++fy) {
 			const row = this.__stage.game_map[fy];
 
-			if (
-				row?.every((item) => item !== null) 
-			) {
-				for (let y = fy; y >= 0; --y)  {
+			if (row?.every((item) => item !== null)) {
+				for (let y = fy; y >= 0; --y) {
 					if (this.__stage.game_map[y]) {
 						// @ts-ignore
 						this.__stage.game_map[y] = this.__stage.game_map[y - 1];
 					}
 				}
 
-				this.__stage.game_map[0] = new Array(this.__stage.square_count_x).fill(null);
+				this.__stage.game_map[0] = new Array(
+					this.__stage.square_count_x,
+				).fill(null);
 			}
 		}
 	}
@@ -544,7 +605,12 @@ export class StageCommands implements StageCommandsInterface {
 	public recalculate_ghost_y(): void {
 		let y = 0;
 
-		while (!this.is_colliding_down(1, new XY(this.__stage.current_block!.position.x, y))) {
+		while (
+			!this.is_colliding_down(
+				1,
+				new XY(this.__stage.current_block!.position.x, y),
+			)
+		) {
 			y += 1;
 		}
 

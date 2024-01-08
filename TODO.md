@@ -1,0 +1,2 @@
+-   Make a builder to only create the necessary methods and states for a specific canvas.
+-   All stage canvases/game canvases should be extensible (from a mini-canvas like in Tetr.io) to a big one displaying all movement, the ghost, etc.

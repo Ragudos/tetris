@@ -8,31 +8,6 @@ class StageAnimator {
 		this.__stage = stage;
 	}
 
-	private draw_main_canvas(): void {
-		const c = this.__stage.main_ctx;
-		const white_line_thickness = 1;
-
-		c.fillStyle = "#f5f5f5";
-
-		for (let y = 0; y < this.__stage.game_map.length; ++y) {
-			c.fillRect(
-				0,
-				this.__stage.block_size * y - white_line_thickness,
-				c.canvas.width,
-				white_line_thickness,
-			);
-		}
-
-		for (let x = 0; x < this.__stage.game_map[0]!.length; ++x) {
-			c.fillRect(
-				this.__stage.block_size * x - white_line_thickness,
-				0,
-				white_line_thickness,
-				c.canvas.height,
-			);
-		}
-	}
-
 	private draw_swapped_block(): void {
 		const c = this.__stage.swapped_block_ctx;
 		const swapped_block = this.__stage.swapped_block;
@@ -144,7 +119,6 @@ class StageAnimator {
 		sc.clearRect(0, 0, sc.canvas.width, sc.canvas.height);
 		nbc.clearRect(0, 0, nbc.canvas.width, nbc.canvas.height);
 
-		this.draw_game_map();
 		this.draw_ghost();
 		this.draw_swapped_block();
 		this.draw_current_block();

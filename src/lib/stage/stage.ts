@@ -101,7 +101,7 @@ export class Stage implements StageInterface {
 	public readonly animator: StageAnimator;
 	public readonly id: string;
 	public readonly game_map: GameMap;
-	
+
 	private __renderer: Renderer;
 	private __main_canvas: HTMLCanvasElement;
 	private __swapped_block_canvas: HTMLCanvasElement;
@@ -141,7 +141,6 @@ export class Stage implements StageInterface {
 	private __is_moving_left: boolean;
 
 	private __can_swap: boolean;
-	private __blocks: TetrominoInterface[];
 	// Y position of ghost
 	private __ghost_y: number;
 
@@ -184,7 +183,6 @@ export class Stage implements StageInterface {
 		this.__square_count_x = game_info.game_map_dimensions.x;
 		this.__square_count_y = game_info.game_map_dimensions.y;
 		this.__block_size = game_info.block_size;
-		this.__blocks = game_info.blocks;
 
 		this.__max_lock_resets = options.max_lock_resets;
 		this.__lock_timer = new Timer(options.lock_delay);
@@ -199,8 +197,9 @@ export class Stage implements StageInterface {
 		this.__x_pull = 200;
 		this.__soft_drop_gravity = Math.trunc(30 * this.__gravity);
 		this.__gravity_in_milliseconds = Math.trunc(1000 / this.__gravity);
-		this.__soft_drop_gravity_in_milliseconds =
-			Math.trunc(1000 / this.__soft_drop_gravity);
+		this.__soft_drop_gravity_in_milliseconds = Math.trunc(
+			1000 / this.__soft_drop_gravity,
+		);
 
 		this.__time_elapsed_since_start = 0;
 		this.__time_elapsed_since_last_drop = 0;
@@ -215,7 +214,7 @@ export class Stage implements StageInterface {
 		this.__is_game_over = false;
 		this.__ghost_y = this.__square_count_y;
 
-		this.__bag = new TetrominoBag(this.__blocks);
+		this.__bag = new TetrominoBag(game_info.blocks);
 
 		this.commands = new StageCommands(this);
 		this.animator = new StageAnimator(this);
@@ -229,7 +228,7 @@ export class Stage implements StageInterface {
 
 	private reset_block(block: TetrominoInterface): void {
 		block.change_position(0, 4);
-		
+
 		if (block.rotation < 0) {
 			for (let i = block.rotation; i < 0; ++i) {
 				block.rotate(1);
@@ -241,7 +240,7 @@ export class Stage implements StageInterface {
 				block.rotate(-1);
 			}
 		}
-	}	
+	}
 
 	private handle_soft_drop(): void {
 		if (this.__is_soft_dropping) {
@@ -265,19 +264,17 @@ export class Stage implements StageInterface {
 			this.__gravity_in_milliseconds
 		) {
 			this.commands.move_block_down();
-			
+
 			this.__time_elapsed_since_last_drop = 0;
 		}
 	}
 
 	private handle_move_right(): void {
 		if (this.__is_moving_right) {
-			if (
-				this.__time_elapsed_since_last_movement >=
-				this.__x_pull
-			) {
+			if (this.__time_elapsed_since_last_movement >= this.__x_pull) {
 				this.commands.move_block_right();
-				const new_x_pull = this.__x_pull -  Math.ceil(this.__x_pull * 0.175);
+				const new_x_pull =
+					this.__x_pull - Math.ceil(this.__x_pull * 0.175);
 
 				if (new_x_pull > this.__x_pull_limit) {
 					this.__x_pull = new_x_pull;
@@ -290,13 +287,11 @@ export class Stage implements StageInterface {
 
 	private handle_move_left(): void {
 		if (this.__is_moving_left) {
-			if (
-				this.__time_elapsed_since_last_movement >=
-				this.__x_pull
-			) {
+			if (this.__time_elapsed_since_last_movement >= this.__x_pull) {
 				this.commands.move_block_left();
 
-				const new_x_pull = this.__x_pull -  Math.ceil(this.__x_pull * 0.175);
+				const new_x_pull =
+					this.__x_pull - Math.ceil(this.__x_pull * 0.175);
 
 				if (new_x_pull > this.__x_pull_limit) {
 					this.__x_pull = new_x_pull;
@@ -504,10 +499,6 @@ export class Stage implements StageInterface {
 
 	get lock_timer(): Timer {
 		return this.__lock_timer;
-	}
-
-	get blocks(): TetrominoInterface[] {
-		return this.__blocks;
 	}
 
 	get next_block(): null | TetrominoInterface {
