@@ -1,6 +1,7 @@
 export const tetromino_config = {
 	max_rotations: 4,
 	size: 20,
+	spritesheet_id: "tetromino-spritesheet",
 	sprite_image_name: "sprite1.png",
 	sprite_block_size: 7,
 	spritesheet_block_space: 0,
@@ -10,6 +11,12 @@ export const tetromino_config = {
 
 export const tetromino_colors = {
 	I: "cyan",
+	J: "blue",
+	L: "orange",
+	O: "yellow",
+	S: "green",
+	T: "purple",
+	Z: "red",
 };
 
 export const tetromino_default_shapes = {
@@ -19,6 +26,35 @@ export const tetromino_default_shapes = {
 			[1, 1, 1, 1],
 			[0, 0, 0, 0],
 			[1, 1, 1, 1],
+		],
+		J: [
+			[0, 0, 1],
+			[1, 1, 1],
+			[0, 0, 0],
+		],
+		L: [
+			[1, 0, 0],
+			[1, 1, 1],
+			[0, 0, 0],
+		],
+		O: [
+			[1, 1],
+			[1, 1],
+		],
+		S: [
+			[0, 1, 1],
+			[1, 1, 0],
+			[0, 0, 0],
+		],
+		T: [
+			[0, 1, 0],
+			[1, 1, 1],
+			[0, 0, 0],
+		],
+		Z: [
+			[1, 1, 0],
+			[0, 1, 1],
+			[0, 0, 0],
 		],
 	},
 };

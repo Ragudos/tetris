@@ -6,4 +6,8 @@ export class XY {
 		this.x = x;
 		this.y = y;
 	}
+
+	clone(): XY {
+		return new XY(this.x, this.y);
+	}
 }

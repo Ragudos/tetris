@@ -32,6 +32,7 @@ interface TetrisEventsData {
 	"tetris:hold": TetrisEventsDataHold;
 	"tetris:clear": TetrisEventsDataClear;
 	"tetris:gameover": TetrisEventsDataGameOver;
+	"tetris:lock": TetrisEventsDataBase;
 }
 
 interface TetrisEventsMap {
@@ -41,6 +42,7 @@ interface TetrisEventsMap {
 	"tetris:hold": CustomEvent<TetrisEventsData["tetris:hold"]>;
 	"tetris:clear": CustomEvent<TetrisEventsData["tetris:clear"]>;
 	"tetris:gameover": CustomEvent<TetrisEventsData["tetris:gameover"]>;
+	"tetris:lock": CustomEvent<TetrisEventsData["tetris:lock"]>;
 }
 
 interface TetrisEvents extends EventTarget {

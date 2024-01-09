@@ -51,11 +51,9 @@ export default class Sound {
 			return;
 		}
 
-		console.log(this);
 		const source = this.context.createBufferSource();
 		source.buffer = this.buffer;
 		const inserted_at = this.sources.push(source);
-		-1;
 
 		source.onended = () => {
 			source.stop(0);

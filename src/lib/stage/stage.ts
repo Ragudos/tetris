@@ -229,15 +229,16 @@ export class Stage implements StageInterface {
 
 	private reset_block(block: TetrominoInterface): void {
 		block.change_position(0, 4);
+		let r = block.rotation;
 
 		if (block.rotation < 0) {
-			for (let i = block.rotation; i < 0; ++i) {
+			for (let i = r; i < 0; ++i) {
 				block.rotate(1);
 			}
 		}
 
 		if (block.rotation > 0) {
-			for (let i = 0; i < block.rotation; ++i) {
+			for (let i = 0; i < r; ++i) {
 				block.rotate(-1);
 			}
 		}
@@ -417,7 +418,9 @@ export class Stage implements StageInterface {
 			this.reset_block(this.__current_block!);
 		}
 
-		tetrisEvents.$emit("tetris:hold", { canvas_id: this.main_canvas.getAttribute("data-id")! });
+		tetrisEvents.$emit("tetris:hold", {
+			canvas_id: this.main_canvas.getAttribute("data-id")!,
+		});
 		this.__can_swap = false;
 		this.commands.recalculate_ghost_y();
 	}
