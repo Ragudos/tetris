@@ -1,25 +1,24 @@
 ---
-
-import { gen_random_id } from "../../lib/utils/string-utils";
 export interface Props {
 	/**
 	 * Whether this is a player's canvas. If so, we listen for their key press events
 	 */
 	is_player_canvas: boolean;
 	scale: number;
+	id: string;
 }
 
 const props = Astro.props;
+const id = props.id;
 
 // TODO: make the id equal to the loginned user's ID.
-const id = gen_random_id();
 ---
 
 <div class="canvas-container">
 	<div class="canvas-inner-container">
 		{props.is_player_canvas &&
 			<canvas
-				data-type="swap-canvas"
+				data-type="swap"
 				data-id={id}
 				id={id + "-swap"}
 				width="100"
@@ -30,7 +29,7 @@ const id = gen_random_id();
 		<canvas
 			id={id}
 			data-id={id}
-			data-type="arena-canvas"
+			data-type="main"
 			data-isplayer={props.is_player_canvas}
 			data-scale={props.scale}
 			width="200"
@@ -40,7 +39,7 @@ const id = gen_random_id();
 		{props.is_player_canvas &&
 			<canvas
 				data-id={id}
-				data-type="next-tetromino-canvas"
+				data-type="next"
 				id={id + "-next-tetromino"}
 				width="100"
 				height="100"
@@ -57,14 +56,14 @@ canvas {
 	touch-action: none;
 }
 
-[data-type=arena-canvas] {
+[data-type=main] {
 	width: 100%;
 	height: 100%;
 	position: relative;
 }
 
-[data-type=next-tetromino-canvas],
-[data-type=swap-canvas] {
+[data-type=next],
+[data-type=swap] {
 	align-self: flex-start;
 }
 

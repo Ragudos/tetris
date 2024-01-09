@@ -18,11 +18,11 @@ class MovementEngine {
 		this.should_move_left = false;
 		this.should_move_right = false;
 
-		this.initial_x_pull = 100;
+		this.initial_x_pull = 120;
 
 		this.x_pull = this.initial_x_pull;
 		this.x_pull_limit = 20;
-		this.x_pull_multiplier = 0.175;
+		this.x_pull_multiplier = 0.1;
 	}
 
 	private move_block(direction: -1 | 1) {
@@ -46,11 +46,52 @@ class MovementEngine {
 		});
 	}
 
-	private reset_x_pull() {
+	reset_x_pull() {
 		this.x_pull = this.initial_x_pull;
 	}
 
+	move_down() {
+		if (this.game_canvas.drop_engine.is_hard_dropping) {
+			return;
+		}
+
+		if (this.game_canvas.collision_engine.is_colliding_down(1)) {
+			if (this.game_canvas.drop_engine.is_lock_timer_running()) {
+				return;
+			} else {
+				this.game_canvas.drop_engine.start_lock_timer();
+
+				return;
+			}
+		}
+
+		const block = this.game_canvas.main_canvas.block;
+
+		if (!block) {
+			return;
+		}
+
+		block.position.y += 1;
+		tetrisEvents.$emit("tetris:move", {
+			canvas_id: this.game_canvas.id,
+			direction: block.position,
+		});
+
+		if (this.game_canvas.collision_engine.is_colliding_down(1)) {
+			this.game_canvas.drop_engine.start_lock_timer();
+		}
+	}
+
 	move_left() {
+		if (
+			this.game_canvas.drop_engine.is_hard_dropping ||
+			(!this.game_canvas.drop_engine.can_reset_timer() &&
+				this.game_canvas.drop_engine.is_lock_timer_running()) ||
+			this.game_canvas.collision_engine.is_colliding_left(1)
+		) {
+			return;
+		}
+
 		if (this.should_move_right && this.should_move_left) {
 			this.reset_x_pull();
 			this.should_move_right = false;
@@ -61,14 +102,6 @@ class MovementEngine {
 				this.game_canvas.time_engine.time_elapsed_since_last_move >=
 				this.x_pull
 			) {
-				if (
-					this.game_canvas.collision_engine.is_colliding_left(1) ||
-					(!this.game_canvas.drop_engine.can_reset_timer() &&
-						this.game_canvas.drop_engine.is_lock_timer_running())
-				) {
-					return;
-				}
-
 				this.game_canvas.movement_engine.move_block(-1);
 
 				const new_x_pull =
@@ -84,6 +117,15 @@ class MovementEngine {
 	}
 
 	move_right() {
+		if (
+			this.game_canvas.drop_engine.is_hard_dropping ||
+			(!this.game_canvas.drop_engine.can_reset_timer() &&
+				this.game_canvas.drop_engine.is_lock_timer_running()) ||
+			this.game_canvas.collision_engine.is_colliding_right(1)
+		) {
+			return;
+		}
+
 		if (this.should_move_left && this.should_move_right) {
 			this.reset_x_pull();
 			this.should_move_left = false;
@@ -94,14 +136,6 @@ class MovementEngine {
 				this.game_canvas.time_engine.time_elapsed_since_last_move >=
 				this.x_pull
 			) {
-				if (
-					this.game_canvas.collision_engine.is_colliding_right(1) ||
-					(!this.game_canvas.drop_engine.can_reset_timer() &&
-						this.game_canvas.drop_engine.is_lock_timer_running())
-				) {
-					return;
-				}
-
 				this.game_canvas.movement_engine.move_block(1);
 
 				const new_x_pull =

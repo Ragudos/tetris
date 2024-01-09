@@ -31,12 +31,29 @@ class TetrominoBag {
 	get_tetromino(): Tetromino {
 		if (this.__current_tetromino === this.__bag.length - 1) {
 			this.refill();
-			return this.__bag[0]!;
+
+			if (this.__bag[0]!.is_with_color()) {
+				return this.__bag[0]!.clone();
+			}
+
+			if (this.__bag[0]!.is_with_sprite()) {
+				return this.__bag[0]!.clone();
+			}
 		}
 
 		this.__current_tetromino += 1;
 
-		return this.__bag[this.__current_tetromino]!;
+		const tetromino = this.__bag[this.__current_tetromino]!;
+
+		if (tetromino.is_with_color()) {
+			return tetromino.clone();
+		}
+
+		if (tetromino.is_with_sprite()) {
+			return tetromino.clone();
+		}
+
+		return tetromino;
 	}
 }
 

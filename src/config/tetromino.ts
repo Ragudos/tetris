@@ -11,8 +11,8 @@ export const tetromino_config = {
 
 export const tetromino_colors = {
 	I: "cyan",
-	J: "blue",
-	L: "orange",
+	J: "orange",
+	L: "blue",
 	O: "yellow",
 	S: "green",
 	T: "purple",
@@ -25,7 +25,7 @@ export const tetromino_default_shapes = {
 			[0, 0, 0, 0],
 			[1, 1, 1, 1],
 			[0, 0, 0, 0],
-			[1, 1, 1, 1],
+			[0, 0, 0, 0],
 		],
 		J: [
 			[0, 0, 1],

@@ -31,8 +31,8 @@ class CollisionEngine {
 			return false;
 		}
 
-		const position = custom_position ?? current_block.position;
-		const shape = custom_shape ?? current_block.shape;
+		const position = custom_position ||  current_block.position;
+		const shape = custom_shape || current_block.shape;
 
 		for (let y = 0; y < shape.length; y++) {
 			for (let x = 0; x < shape[y]!.length; x++) {
@@ -45,26 +45,12 @@ class CollisionEngine {
 				const x_pos = position.x + x;
 				const y_pos = position.y + y;
 
-				if (x_pos - offset_left < 0) {
-					return true;
-				}
-
-				if (x_pos + offset_right >= this.square_count_x) {
-					return true;
-				}
-
-				if (y_pos + offset_bottom >= this.square_count_y) {
-					return true;
-				}
-
-				if (y_pos + offset_top < 0) {
-					return true;
-				}
-
-				if (
-					this.game_canvas.game_map[y_pos] &&
-					this.game_canvas.game_map[y_pos]![x_pos] !== null
-				) {
+				if (x_pos - offset_left < 0 ||
+					x_pos + offset_right >= this.square_count_x ||
+					y_pos + offset_bottom >= this.square_count_y ||
+					y_pos - offset_top < 0 ||
+					(this.game_canvas.game_map[y_pos] &&
+						this.game_canvas.game_map[y_pos]![x_pos] !== null)) {
 					return true;
 				}
 			}

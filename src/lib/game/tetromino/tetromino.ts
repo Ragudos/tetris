@@ -109,7 +109,9 @@ class Tetromino implements TetrominoInterface {
 					);
 				}
 			}
-		} else if (this.is_with_sprite()) {
+		}
+		
+		if (this.is_with_sprite()) {
 			for (let y = 0; y < this.shape.length; ++y) {
 				const row = this.shape[y];
 
@@ -207,7 +209,6 @@ class TetrominoWithSprite extends Tetromino {
 	clone(): TetrominoWithSprite {
 		const copied_position = this.clone_position();
 		const copied_shape = this.clone_shape();
-		const copied_sprite = this.clone_sprite();
 
 		return new TetrominoWithSprite(
 			this.name,
@@ -215,7 +216,7 @@ class TetrominoWithSprite extends Tetromino {
 			copied_position,
 			this.size,
 			this.rotation,
-			copied_sprite,
+			this.sprite,
 		);
 	}
 

@@ -26,7 +26,7 @@ function tetromino_with_color_factory(
 		shape,
 		initial_position,
 		size,
-		1,
+		0,
 		color,
 	);
 }
@@ -44,7 +44,7 @@ function tetromino_with_sprite_factory(
 		shape,
 		initial_position,
 		size,
-		1,
+		0,
 		image_info,
 	);
 }
