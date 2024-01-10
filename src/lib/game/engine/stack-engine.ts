@@ -1,3 +1,4 @@
+import tetrisEvents from "../../events/tetris-events";
 import type { GameCanvasBase } from "../canvas/canvas";
 
 class StackEngine {
@@ -16,6 +17,8 @@ class StackEngine {
 			return;
 		}
 
+		let lines = 0;
+
 		for (let fy = 0; fy < this.game_canvas.game_map.length; ++fy) {
 			const row = this.game_canvas.game_map[fy];
 
@@ -26,17 +29,23 @@ class StackEngine {
 			if (row.every((block) => block !== null)) {
 				for (let y = fy; y >= 0; --y) {
 					if (this.game_canvas.game_map[y]) {
-						this.game_canvas.game_map[y] = this.game_canvas.game_map[
-							y - 1
-						]!;
+						this.game_canvas.game_map[y] =
+							this.game_canvas.game_map[y - 1]!;
 					}
 				}
 
 				this.game_canvas.game_map[0] = Array(
 					this.game_canvas.collision_engine.square_count_x,
 				).fill(null);
+
+				lines += 1;
 			}
 		}
+
+		tetrisEvents.$emit("tetris:clear", {
+			canvas_id: this.game_canvas.id,
+			lines,
+		});
 	}
 
 	update_game_map(): void {

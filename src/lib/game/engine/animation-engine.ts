@@ -1,3 +1,4 @@
+import { multiply_and_add_products } from "../../utils/general-utils";
 import type { GameCanvasBase } from "../canvas/canvas";
 
 class AnimationEngine {
@@ -62,7 +63,77 @@ class AnimationEngine {
 			return;
 		}
 
-		block.draw(this.game_canvas.next_canvas.ctx);
+		if (block.is_with_color()) {
+			for (let y = 0; y < block.shape.length; ++y) {
+				const row = block.shape[y];
+
+				if (!row) {
+					continue;
+				}
+
+				for (let x = 0; x < row.length; ++x) {
+					const item = row[x];
+
+					if (item === undefined || item === 0) {
+						continue;
+					}
+
+					this.game_canvas.next_canvas.ctx.fillStyle = block.color;
+					this.game_canvas.next_canvas.ctx.fillRect(
+						multiply_and_add_products(
+							this.game_canvas.next_canvas.size,
+							1,
+							x
+						),
+						multiply_and_add_products(
+							this.game_canvas.next_canvas.size,
+							2,
+							y
+						),
+						this.game_canvas.next_canvas.size,
+						this.game_canvas.next_canvas.size,
+					);
+				}
+			}
+		}
+
+		if (block.is_with_sprite()) {
+			for (let y = 0; y < block.shape.length; ++y) {
+				const row = block.shape[y];
+
+				if (!row) {
+					continue;
+				}
+
+				for (let x = 0; x < row.length; ++x) {
+					const item = row[x];
+
+					if (item === undefined || item === 0) {
+						continue;
+					}
+
+					this.game_canvas.next_canvas.ctx.drawImage(
+						block.sprite.image_source,
+						block.sprite.position.x,
+						block.sprite.position.y,
+						block.sprite.size.x,
+						block.sprite.size.y,
+						multiply_and_add_products(
+							this.game_canvas.next_canvas.size,
+							1,
+							x
+						),
+						multiply_and_add_products(
+							this.game_canvas.next_canvas.size,
+							2,
+							y
+						),
+						this.game_canvas.next_canvas.size,
+						this.game_canvas.next_canvas.size,
+					)
+				}
+			}
+		}
 	}
 
 	private draw_swapped_block(): void {
@@ -72,7 +143,77 @@ class AnimationEngine {
 			return;
 		}
 
-		block.draw(this.game_canvas.swap_canvas.ctx);
+		if (block.is_with_color()) {
+			for (let y = 0; y < block.shape.length; ++y) {
+				const row = block.shape[y];
+
+				if (!row) {
+					continue;
+				}
+
+				for (let x = 0; x < row.length; ++x) {
+					const item = row[x];
+
+					if (item === undefined || item === 0) {
+						continue;
+					}
+
+					this.game_canvas.swap_canvas.ctx.fillStyle = block.color;
+					this.game_canvas.swap_canvas.ctx.fillRect(
+						multiply_and_add_products(
+							this.game_canvas.swap_canvas.size,
+							1,
+							x
+						),
+						multiply_and_add_products(
+							this.game_canvas.swap_canvas.size,
+							2,
+							y
+						),
+						this.game_canvas.swap_canvas.size,
+						this.game_canvas.swap_canvas.size,
+					);
+				}
+			}
+		}
+
+		if (block.is_with_sprite()) {
+			for (let y = 0; y < block.shape.length; ++y) {
+				const row = block.shape[y];
+
+				if (!row) {
+					continue;
+				}
+
+				for (let x = 0; x < row.length; ++x) {
+					const item = row[x];
+
+					if (item === undefined || item === 0) {
+						continue;
+					}
+
+					this.game_canvas.swap_canvas.ctx.drawImage(
+						block.sprite.image_source,
+						block.sprite.position.x,
+						block.sprite.position.y,
+						block.sprite.size.x,
+						block.sprite.size.y,
+						multiply_and_add_products(
+							this.game_canvas.swap_canvas.size,
+							1,
+							x
+						),
+						multiply_and_add_products(
+							this.game_canvas.swap_canvas.size,
+							2,
+							y
+						),
+						this.game_canvas.swap_canvas.size,
+						this.game_canvas.swap_canvas.size,
+					)
+				}
+			}
+		}
 	}
 
 	private draw_ghost(): void {
@@ -96,8 +237,7 @@ class AnimationEngine {
 
 				this.game_canvas.main_canvas.ctx.fillRect(
 					(block.position.x + x) * this.game_canvas.size,
-					(this.game_canvas.ghost_y_pos + y) *
-						this.game_canvas.size,
+					(this.game_canvas.ghost_y_pos + y) * this.game_canvas.size,
 					this.game_canvas.size,
 					this.game_canvas.size,
 				);

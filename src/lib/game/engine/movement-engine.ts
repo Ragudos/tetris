@@ -22,7 +22,7 @@ class MovementEngine {
 
 		this.x_pull = this.initial_x_pull;
 		this.x_pull_limit = 20;
-		this.x_pull_multiplier = 0.1;
+		this.x_pull_multiplier = 0.2;
 	}
 
 	private move_block(direction: -1 | 1) {

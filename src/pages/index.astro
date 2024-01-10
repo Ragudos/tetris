@@ -1,91 +1,67 @@
 ---
-import TetrisCanvas from "../components/tetris-canvas/TetrisCanvas.astro";
 import Main from "../layouts/Main.astro";
-import { tetromino_config } from "../config/tetromino";
+
+const buttons = [
+	{
+		name: "Play",
+		href: "/play",
+		target: "_self"
+	},
+	{
+		name: "Settings",
+		href: "/settings",
+		target: "_self"
+	},
+	{
+		name: "About",
+		href: "/about",
+		target: "_self"
+	},
+	{
+		name: "Github",
+		href: "",
+		target: "_blank"
+	}
+]
 
 ---
-
-
 <Main>
-	<TetrisCanvas 
-		is_player_canvas={true}
-		scale={20}
-		id="random"
-	/>
-	<img src={`/${tetromino_config.sprite_image_name}`} alt=" " hidden role="presentation" id="tetromino-spritesheet"  />
-	<audio src="/sfx/tetris-drop.mp3" hidden id="drop-sfx" preload="auto" />
-	<script>
-		import GameCanvas from "../lib/game/canvas/canvas";
-		import { tetromino_config } from "../config/tetromino";
-		import storage from "../lib/game/tetromino/storage";
+	<main class="container">
+		<div class="menu-container">
+			<h1 class="tetris-title">TETRIS</h1>
 
-		let did_rotate = false;
-		
-		const canvas = new GameCanvas("random", storage.get_bag_with_sprite(), tetromino_config.size);
-		
-		canvas.start();
+			<ul>
+				{buttons.map((b) => (
+					<li>
+						<a
+							title={b.name}
+							href={b.href}
+							target={b.target}
+						>
+							{b.name}
+						</a>
+					</li>
+				))}
+			</ul>
+		</div>
+	</main>
+	
+	<style>
+		ul li a {
+			width: 100%;
+		}
 
-		window.addEventListener("keydown", (event) => {
-			const key = event.key;
+		.menu-container {
+			min-height: 100dvh;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
 
-			switch (key) {
-				case "ArrowLeft":
-				case "a":
-					canvas.movement_engine.should_move_left = true;
-					break;
-				case "ArrowRight":
-				case "d":
-					canvas.movement_engine.should_move_right = true;;
-					break;
-				case "ArrowDown":
-				case "s":
-					canvas.drop_engine.soft_drop();
-					break;
-				case "ArrowUp":
-				case "w":
-					{
-						if (did_rotate) {
-							break;
-						}
-
-						canvas.rotation_engine.rotate(key === "ArrowUp" ? 1 : -1);
-						did_rotate = true;
-					}
-					break;
-				case " ":
-					canvas.drop_engine.hard_drop();
-					break;
-				case "Shift":
-					canvas.swap_block();
-					break;
-			}
-		});
-
-		window.addEventListener("keyup", (event) => {
-			const key = event.key;
-
-			switch (key) {
-				case "ArrowUp":
-				case "w":
-					did_rotate = false;
-					break;
-				case "ArrowLeft":
-				case "a":
-					canvas.movement_engine.should_move_left = false;
-					canvas.movement_engine.reset_x_pull();
-					break;
-				case "ArrowRight":
-				case "d":
-					canvas.movement_engine.should_move_right = false;
-					canvas.movement_engine.reset_x_pull();
-					break;
-				case "ArrowDown":
-				case "s":
-					canvas.drop_engine.stop_soft_drop();
-					break;
-			}
-		});
-
-	</script>
+		.tetris-title {
+			text-shadow: -0.075rem 0.075rem 0.25rem hsl(var(--text));
+		}
+	</style>
 </Main>
 

@@ -47,6 +47,10 @@ class DropEngine {
 			pos.y += 1;
 		}
 
+		tetrisEvents.$emit("tetris:drop", {
+			canvas_id: this.game_canvas.id,
+			type: "hard",
+		});
 		block.position.y = pos.y;
 		this.lock_block();
 		this.is_hard_dropping = false;
@@ -65,7 +69,7 @@ class DropEngine {
 	}
 
 	recalculate_ghost_y(): void {
-		let y = 0;
+		let y = this.game_canvas.main_canvas.block!.position.y;
 
 		while (
 			!this.game_canvas.collision_engine.is_colliding_down(

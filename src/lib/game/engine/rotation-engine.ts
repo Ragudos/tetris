@@ -4,6 +4,7 @@ import type { GameCanvasBase } from "../canvas/canvas";
 import { srs_kick_data } from "../../../config/tetromino";
 import { XY } from "../../xy";
 import { rotate_matrix } from "../../utils/matrix-utils";
+import tetrisEvents from "../../events/tetris-events";
 
 class RotationEngine {
 	game_canvas: GameCanvasBase;
@@ -90,6 +91,10 @@ class RotationEngine {
 					block.position.y = new_pos_y;
 					block.rotate(dir);
 					this.game_canvas.drop_engine.recalculate_ghost_y();
+					tetrisEvents.$emit("tetris:rotate", {
+						canvas_id: this.game_canvas.id,
+						direction: dir,
+					});
 
 					break;
 				}

@@ -14,6 +14,7 @@ interface CanvasObject {
 	canvas: HTMLCanvasElement;
 	ctx: CanvasRenderingContext2D;
 	block: null | Tetromino;
+	size: number;
 }
 
 export interface GameCanvasBase {
@@ -46,15 +47,18 @@ class CanvasObject implements CanvasObject {
 	canvas: HTMLCanvasElement;
 	ctx: CanvasRenderingContext2D;
 	block: null | Tetromino;
+	size: number;
 
 	constructor(
 		canvas: HTMLCanvasElement,
 		ctx: CanvasRenderingContext2D,
 		block: null | Tetromino,
+		size: number
 	) {
 		this.canvas = canvas;
 		this.ctx = ctx;
 		this.block = block;
+		this.size = size;
 	}
 }
 
@@ -122,20 +126,27 @@ class GameCanvas implements GameCanvasBase {
 			main_canvas,
 			main_canvas.getContext("2d") as CanvasRenderingContext2D,
 			this.bag.get_tetromino(),
+			size
 		);
 		this.next_canvas = new CanvasObject(
 			next_canvas,
 			next_canvas.getContext("2d") as CanvasRenderingContext2D,
 			this.bag.get_tetromino(),
+			Math.round(next_canvas.width / 6)
 		);
 		this.swap_canvas = new CanvasObject(
 			swap_canvas,
 			swap_canvas.getContext("2d") as CanvasRenderingContext2D,
 			null,
+			Math.round(swap_canvas.width / 6)
 		);
+
+		console.log(this.next_canvas);
 		this.ghost_y_pos = 18;
 		this.is_game_over = false;
-		this.game_map = new Array(20).fill(null).map(() => new Array(10).fill(null));
+		this.game_map = new Array(20)
+			.fill(null)
+			.map(() => new Array(10).fill(null));
 		this.animation_engine = new AnimationEngine(this);
 		this.collision_engine = new CollisionEngine(10, 20, this);
 		this.drop_engine = new DropEngine(this);

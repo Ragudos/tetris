@@ -110,7 +110,7 @@ class Tetromino implements TetrominoInterface {
 				}
 			}
 		}
-		
+
 		if (this.is_with_sprite()) {
 			for (let y = 0; y < this.shape.length; ++y) {
 				const row = this.shape[y];

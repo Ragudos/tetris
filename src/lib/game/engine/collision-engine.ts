@@ -31,7 +31,7 @@ class CollisionEngine {
 			return false;
 		}
 
-		const position = custom_position ||  current_block.position;
+		const position = custom_position || current_block.position;
 		const shape = custom_shape || current_block.shape;
 
 		for (let y = 0; y < shape.length; y++) {
@@ -45,12 +45,14 @@ class CollisionEngine {
 				const x_pos = position.x + x;
 				const y_pos = position.y + y;
 
-				if (x_pos - offset_left < 0 ||
+				if (
+					x_pos - offset_left < 0 ||
 					x_pos + offset_right >= this.square_count_x ||
 					y_pos + offset_bottom >= this.square_count_y ||
 					y_pos - offset_top < 0 ||
 					(this.game_canvas.game_map[y_pos] &&
-						this.game_canvas.game_map[y_pos]![x_pos] !== null)) {
+						this.game_canvas.game_map[y_pos]![x_pos] !== null)
+				) {
 					return true;
 				}
 			}
