@@ -1,10 +1,11 @@
 import tetrisEvents from "../../events/tetris-events";
 import { Timer } from "../../timer";
 import { XY } from "../../xy";
-import type { GameCanvasBase } from "../canvas/canvas";
+import type GameCanvas from "../canvas/canvas";
 
+// TODO use new Timer instead of old one for more precision
 class DropEngine {
-	private game_canvas: GameCanvasBase;
+	private game_canvas: GameCanvas;
 	private lock_timer: Timer;
 	private lock_delay_restarts: number;
 	private max_lock_delay_restarts: number;
@@ -14,7 +15,7 @@ class DropEngine {
 	is_hard_dropping: boolean;
 	is_soft_dropping: boolean;
 
-	constructor(game_canvas: GameCanvasBase) {
+	constructor(game_canvas: GameCanvas) {
 		this.game_canvas = game_canvas;
 
 		this.lock_timer = new Timer(500);
@@ -24,8 +25,8 @@ class DropEngine {
 
 		this.is_hard_dropping = false;
 		this.is_soft_dropping = false;
-		this.gravity = 1000;
-		this.soft_drop_gravity = 50;
+		this.gravity = 5;
+		this.soft_drop_gravity = 1;
 	}
 
 	hard_drop(): void {
@@ -33,7 +34,7 @@ class DropEngine {
 			return;
 		}
 
-		const block = this.game_canvas.main_canvas.block;
+		const block = this.game_canvas.current_block;
 
 		if (!block) {
 			return;
@@ -41,7 +42,7 @@ class DropEngine {
 
 		this.is_hard_dropping = true;
 
-		const pos = block.clone_position();
+		const pos = block.position.clone();
 
 		while (!this.game_canvas.collision_engine.is_colliding_down(1, pos)) {
 			pos.y += 1;
@@ -69,12 +70,12 @@ class DropEngine {
 	}
 
 	recalculate_ghost_y(): void {
-		let y = this.game_canvas.main_canvas.block!.position.y;
+		let y = this.game_canvas.current_block!.position.y;
 
 		while (
 			!this.game_canvas.collision_engine.is_colliding_down(
 				1,
-				new XY(this.game_canvas.main_canvas.block!.position.x, y),
+				new XY(this.game_canvas.current_block!.position.x, y),
 			)
 		) {
 			y += 1;

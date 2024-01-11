@@ -1,10 +1,10 @@
 import tetrisEvents from "../../events/tetris-events";
-import type { GameCanvasBase } from "../canvas/canvas";
+import type GameCanvas from "../canvas/canvas";
 
 class StackEngine {
-	private game_canvas: GameCanvasBase;
+	private game_canvas: GameCanvas;
 
-	constructor(game_canvas: GameCanvasBase) {
+	constructor(game_canvas: GameCanvas) {
 		this.game_canvas = game_canvas;
 	}
 
@@ -49,7 +49,7 @@ class StackEngine {
 	}
 
 	update_game_map(): void {
-		const current_block = this.game_canvas.main_canvas.block;
+		const current_block = this.game_canvas.current_block;
 
 		if (!current_block) {
 			return;

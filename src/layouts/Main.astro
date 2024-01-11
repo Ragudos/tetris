@@ -21,7 +21,7 @@ const props = Astro.props;
 		<meta name="description" content={props.description || site_config.description} />
 	</head>
 	<body>
-		<img src={`/${tetromino_config.sprite_image_name}`} alt=" " hidden role="presentation" id={tetromino_config.spritesheet_id}  />
+		<img loading="eager" src={`/${tetromino_config.sprite_image_name}`} alt=" " hidden role="presentation" id={tetromino_config.spritesheet_id}  />
 		<slot />
 	</body>
 </html>

@@ -1,77 +1,33 @@
-import type { Tetromino } from "../tetromino/tetromino";
+import type Tetromino  from "../tetromino/tetromino";
 import MovementEngine from "../engine/movement-engine";
 import CollisionEngine from "../engine/collision-engine";
 import TetrominoBag from "../tetromino/bag";
 import DropEngine from "../engine/drop-engine";
 import AnimationEngine from "../engine/animation-engine";
-import { Renderer } from "../../renderer";
 import TimeEngine from "../engine/time-engine";
 import StackEngine from "../engine/stack-engine";
 import RotationEngine from "../engine/rotation-engine";
 import tetrisEvents from "../../events/tetris-events";
+import Timer from "../timer";
+import { get_sprite_position } from "../tetromino/sprite";
+import storage from "../tetromino/storage";
+import type { XY } from "../../xy";
 
-interface CanvasObject {
-	canvas: HTMLCanvasElement;
-	ctx: CanvasRenderingContext2D;
-	block: null | Tetromino;
-	size: number;
-}
-
-export interface GameCanvasBase {
-	id: string;
-	game_map: (null | Tetromino)[][];
-	main_canvas: CanvasObject;
-	next_canvas: CanvasObject;
-	movement_engine: MovementEngine;
-	collision_engine: CollisionEngine;
-	animation_engine: AnimationEngine;
-	drop_engine: DropEngine;
-	time_engine: TimeEngine;
-	stack_engine: StackEngine;
-	bag: TetrominoBag;
-	is_game_over: boolean;
-	size: number;
-	rotation_engine: RotationEngine;
-
-	start(): void;
-	stop(): void;
-	get_new_block(): void;
-
-	swap_block(): void;
-	swap_canvas: CanvasObject;
-	ghost_y_pos: number;
-	can_swap: boolean;
-}
-
-class CanvasObject implements CanvasObject {
-	canvas: HTMLCanvasElement;
-	ctx: CanvasRenderingContext2D;
-	block: null | Tetromino;
-	size: number;
-
-	constructor(
-		canvas: HTMLCanvasElement,
-		ctx: CanvasRenderingContext2D,
-		block: null | Tetromino,
-		size: number
-	) {
-		this.canvas = canvas;
-		this.ctx = ctx;
-		this.block = block;
-		this.size = size;
-	}
-}
-
-class GameCanvas implements GameCanvasBase {
-	private renderer: Renderer;
+class GameCanvas {
+	private renderer: Timer;
 
 	private base_x_position: number;
 
+	canvas: HTMLCanvasElement;
+	ctx: CanvasRenderingContext2D;
+
 	id: string;
 	game_map: (null | Tetromino)[][];
-	main_canvas: CanvasObject;
-	next_canvas: CanvasObject;
-	swap_canvas: CanvasObject;
+	
+	current_block: Tetromino;
+	next_block: Tetromino;
+	swapped_block: null | Tetromino;
+
 	movement_engine: MovementEngine;
 	collision_engine: CollisionEngine;
 	animation_engine: AnimationEngine;
@@ -79,74 +35,47 @@ class GameCanvas implements GameCanvasBase {
 	time_engine: TimeEngine;
 	stack_engine: StackEngine;
 	rotation_engine: RotationEngine;
+
 	bag: TetrominoBag;
+
 	is_game_over: boolean;
+
 	ghost_y_pos: number;
+	ghost_sprite_position: XY;
+
 	can_swap: boolean;
+
 	size: number;
 
 	constructor(id: string, blocks: Tetromino[], size: number) {
 		this.id = id;
 
-		const canvases = Array.from(
-			document.querySelectorAll(`canvas[data-id="${id}"]`),
-		) as HTMLCanvasElement[];
-
-		if (canvases.length === 0) {
-			throw new Error(
-				`No canvas found with id ${id}. Do they have an attribute of data-id?`,
-			);
+		const canvas = document.getElementById(id) as HTMLCanvasElement;
+		
+		if (!canvas) {
+			throw new Error(`Couldn't find canvas with id ${id}`);
 		}
 
-		if (canvases.length > 3) {
-			throw new Error(
-				`Too many canvases found with id ${id}. There should only be 3.`,
-			);
+		const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+
+		if (!ctx) {
+			throw new Error(`Couldn't get canvas context for canvas with id ${id}`);
 		}
 
-		const main_canvas = canvases.find(
-			(canvas) => canvas.getAttribute("data-type") === "main",
-		);
-		const next_canvas = canvases.find(
-			(canvas) => canvas.getAttribute("data-type") === "next",
-		);
-		const swap_canvas = canvases.find(
-			(canvas) => canvas.getAttribute("data-type") === "swap",
-		);
+		this.canvas = canvas;
+		this.ctx = ctx;
 
-		if (!main_canvas || !next_canvas || !swap_canvas) {
-			throw new Error(
-				`Not all canvases found with id ${id}. There should be 3. The types are main, next, and swap which is the value of their attribute, "data-type"`,
-			);
-		}
-
-		this.renderer = new Renderer(this.render.bind(this));
+		this.renderer = new Timer();
+		this.renderer.add(this.render.bind(this));
+		
 		this.bag = new TetrominoBag(blocks);
-		this.main_canvas = new CanvasObject(
-			main_canvas,
-			main_canvas.getContext("2d") as CanvasRenderingContext2D,
-			this.bag.get_tetromino(),
-			size
-		);
-		this.next_canvas = new CanvasObject(
-			next_canvas,
-			next_canvas.getContext("2d") as CanvasRenderingContext2D,
-			this.bag.get_tetromino(),
-			Math.round(next_canvas.width / 6)
-		);
-		this.swap_canvas = new CanvasObject(
-			swap_canvas,
-			swap_canvas.getContext("2d") as CanvasRenderingContext2D,
-			null,
-			Math.round(swap_canvas.width / 6)
-		);
-
-		console.log(this.next_canvas);
-		this.ghost_y_pos = 18;
+		
 		this.is_game_over = false;
+
 		this.game_map = new Array(20)
 			.fill(null)
 			.map(() => new Array(10).fill(null));
+
 		this.animation_engine = new AnimationEngine(this);
 		this.collision_engine = new CollisionEngine(10, 20, this);
 		this.drop_engine = new DropEngine(this);
@@ -154,9 +83,19 @@ class GameCanvas implements GameCanvasBase {
 		this.time_engine = new TimeEngine(this);
 		this.stack_engine = new StackEngine(this);
 		this.rotation_engine = new RotationEngine(this);
+
+		this.current_block = this.bag.get_tetromino();
+		this.next_block = this.bag.get_tetromino();
+		this.swapped_block = null;
+
 		this.can_swap = true;
+
 		this.base_x_position = 4;
+
 		this.size = size;
+
+		this.ghost_y_pos = 18;
+		this.ghost_sprite_position = get_sprite_position("ghost", storage.sprite_type);
 	}
 
 	private handle_soft_drop(): void {
@@ -225,25 +164,25 @@ class GameCanvas implements GameCanvasBase {
 			return;
 		}
 
-		const current_block = this.main_canvas.block;
+		const current_block = this.current_block;
 
 		if (current_block === null) {
 			return;
 		}
 
-		if (this.swap_canvas.block === null) {
+		if (this.swapped_block === null) {
 			this.reset_block_rotation(current_block);
 			current_block.position.x = 0;
-			this.swap_canvas.block = current_block;
+			this.swapped_block = current_block;
 			this.get_new_block();
 		} else {
 			this.reset_block_rotation(current_block);
 			current_block.position.x = 0;
 			current_block.position.y = 0;
-			const tmp_block = this.swap_canvas.block;
-			this.swap_canvas.block = current_block;
-			this.main_canvas.block = tmp_block;
-			this.main_canvas.block.position.x = this.base_x_position;
+			const tmp_block = this.swapped_block;
+			this.swapped_block = current_block;
+			this.current_block = tmp_block;
+			this.current_block.position.x = this.base_x_position;
 		}
 
 		tetrisEvents.$emit("tetris:hold", {
@@ -254,30 +193,22 @@ class GameCanvas implements GameCanvasBase {
 	}
 
 	get_new_block(): void {
-		this.main_canvas.block =
-			this.next_canvas.block || this.bag.get_tetromino();
-		this.next_canvas.block = this.bag.get_tetromino();
+		this.current_block =
+			this.next_block || this.bag.get_tetromino();
+		this.next_block = this.bag.get_tetromino();
 
-		this.main_canvas.block.position.x = this.base_x_position;
+		this.current_block!.position.x = this.base_x_position;
 		this.can_swap = true;
 
 		this.drop_engine.recalculate_ghost_y();
 	}
 
 	start(): void {
-		if (this.renderer.is_rendering) {
-			return;
-		}
-
-		this.renderer.start_rendering();
+		this.renderer.start();
 	}
 
 	stop(): void {
-		if (!this.renderer.is_rendering) {
-			return;
-		}
-
-		this.renderer.stop_rendering();
+		this.renderer.stop();
 	}
 }
 

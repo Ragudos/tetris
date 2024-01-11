@@ -1,15 +1,15 @@
 import type { ROTATION_DIR } from "../../types";
-import type { GameCanvasBase } from "../canvas/canvas";
 
 import { srs_kick_data } from "../../../config/tetromino";
 import { XY } from "../../xy";
 import { rotate_matrix } from "../../utils/matrix-utils";
 import tetrisEvents from "../../events/tetris-events";
+import type GameCanvas from "../canvas/canvas";
 
 class RotationEngine {
-	game_canvas: GameCanvasBase;
+	game_canvas: GameCanvas;
 
-	constructor(game_canvas: GameCanvasBase) {
+	constructor(game_canvas: GameCanvas) {
 		this.game_canvas = game_canvas;
 	}
 
@@ -21,7 +21,7 @@ class RotationEngine {
 			return;
 		}
 
-		const block = this.game_canvas.main_canvas.block;
+		const block = this.game_canvas.current_block;
 
 		if (!block) {
 			return;
@@ -44,19 +44,19 @@ class RotationEngine {
 					continue;
 				}
 
-				const abs_current_rotation = Math.abs(block.rotation);
+				const abs_next_rotation = Math.abs(block.rotation + dir);
 
 				let kick_idx: number;
 
 				switch (dir) {
 					case -1:
 						{
-							kick_idx = add_8 + (abs_current_rotation % 4) + 4;
+							kick_idx = add_8 + (abs_next_rotation % 4) + 4;
 						}
 						break;
 					case 1:
 						{
-							kick_idx = add_8 + (abs_current_rotation % 4);
+							kick_idx = add_8 + (abs_next_rotation % 4);
 						}
 						break;
 				}

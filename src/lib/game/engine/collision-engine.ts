@@ -1,8 +1,8 @@
 import type { XY } from "../../xy";
-import type { GameCanvasBase } from "../canvas/canvas";
+import type GameCanvas from "../canvas/canvas";
 
 class CollisionEngine {
-	private game_canvas: GameCanvasBase;
+	private game_canvas: GameCanvas;
 
 	square_count_x: number;
 	square_count_y: number;
@@ -10,7 +10,7 @@ class CollisionEngine {
 	constructor(
 		square_count_x: number,
 		square_count_y: number,
-		game_canvas: GameCanvasBase,
+		game_canvas: GameCanvas,
 	) {
 		this.square_count_x = square_count_x;
 		this.square_count_y = square_count_y;
@@ -25,7 +25,7 @@ class CollisionEngine {
 		custom_position?: XY,
 		custom_shape?: number[][],
 	): boolean {
-		const current_block = this.game_canvas.main_canvas.block;
+		const current_block = this.game_canvas.current_block;
 
 		if (!current_block) {
 			return false;
@@ -66,7 +66,7 @@ class CollisionEngine {
 		custom_position?: XY,
 		custom_shape?: number[][],
 	): boolean {
-		const current_block = this.game_canvas.main_canvas.block;
+		const current_block = this.game_canvas.current_block;
 
 		if (!current_block) {
 			return false;
@@ -106,7 +106,7 @@ class CollisionEngine {
 		custom_position?: XY,
 		custom_shape?: number[][],
 	): boolean {
-		const current_block = this.game_canvas.main_canvas.block;
+		const current_block = this.game_canvas.current_block;
 
 		if (!current_block) {
 			return false;
@@ -146,7 +146,7 @@ class CollisionEngine {
 		custom_position?: XY,
 		custom_shape?: number[][],
 	): boolean {
-		const current_block = this.game_canvas.main_canvas.block;
+		const current_block = this.game_canvas.current_block;
 
 		if (!current_block) {
 			return false;
@@ -186,7 +186,7 @@ class CollisionEngine {
 		custom_position?: XY,
 		custom_shape?: number[][],
 	): boolean {
-		const current_block = this.game_canvas.main_canvas.block;
+		const current_block = this.game_canvas.current_block;
 
 		if (!current_block) {
 			return false;

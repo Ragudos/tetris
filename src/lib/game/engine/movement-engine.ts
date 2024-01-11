@@ -1,9 +1,10 @@
 import tetrisEvents from "../../events/tetris-events";
-import type { GameCanvasBase } from "../canvas/canvas";
+import type GameCanvas from "../canvas/canvas";
 
 class MovementEngine {
-	private game_canvas: GameCanvasBase;
+	private game_canvas: GameCanvas;
 	private readonly initial_x_pull: number;
+	private __increases: number;
 
 	should_move_left: boolean;
 	should_move_right: boolean;
@@ -12,21 +13,22 @@ class MovementEngine {
 	x_pull_limit: number;
 	x_pull_multiplier: number;
 
-	constructor(game_canvas: GameCanvasBase) {
+	constructor(game_canvas: GameCanvas) {
 		this.game_canvas = game_canvas;
 
 		this.should_move_left = false;
 		this.should_move_right = false;
 
-		this.initial_x_pull = 120;
+		this.initial_x_pull = 8;
 
 		this.x_pull = this.initial_x_pull;
-		this.x_pull_limit = 20;
-		this.x_pull_multiplier = 0.2;
+		this.x_pull_limit = 2;
+		this.__increases = 0;
+		this.x_pull_multiplier = 0.5;
 	}
 
 	private move_block(direction: -1 | 1) {
-		const current_block = this.game_canvas.main_canvas.block;
+		const current_block = this.game_canvas.current_block;
 
 		if (!current_block) {
 			return;
@@ -48,6 +50,7 @@ class MovementEngine {
 
 	reset_x_pull() {
 		this.x_pull = this.initial_x_pull;
+		this.__increases = 0;
 	}
 
 	move_down() {
@@ -65,7 +68,7 @@ class MovementEngine {
 			}
 		}
 
-		const block = this.game_canvas.main_canvas.block;
+		const block = this.game_canvas.current_block;
 
 		if (!block) {
 			return;
@@ -105,10 +108,11 @@ class MovementEngine {
 				this.game_canvas.movement_engine.move_block(-1);
 
 				const new_x_pull =
-					this.x_pull - this.x_pull_multiplier * this.x_pull;
+					this.x_pull - this.x_pull_multiplier * (this.__increases === 0 ? 1 : this.__increases);
 
 				if (new_x_pull >= this.x_pull_limit) {
 					this.x_pull = new_x_pull;
+					this.__increases += 1;
 				}
 
 				this.game_canvas.time_engine.time_elapsed_since_last_move = 0;
@@ -139,10 +143,11 @@ class MovementEngine {
 				this.game_canvas.movement_engine.move_block(1);
 
 				const new_x_pull =
-					this.x_pull - this.x_pull_multiplier * this.x_pull;
+					this.x_pull - this.x_pull_multiplier * (this.__increases === 0 ? 1 : this.__increases);
 
 				if (new_x_pull >= this.x_pull_limit) {
 					this.x_pull = new_x_pull;
+					this.__increases += 1;
 				}
 
 				this.game_canvas.time_engine.time_elapsed_since_last_move = 0;

@@ -1,18 +1,31 @@
-import type { CanvasImageSource } from "./types";
 import type { XY } from "./xy";
 
 export class ImageInfo {
-	private __image_source: CanvasImageSource;
+	private __image_source: HTMLOrSVGImageElement;
 	private __size: XY;
 	private __position: XY;
 
-	constructor(image_source: CanvasImageSource, size: XY, position: XY) {
+	did_image_load: boolean = false;
+
+	constructor(image_source: HTMLOrSVGImageElement, size: XY, position: XY) {
 		this.__image_source = image_source;
 		this.__size = size;
 		this.__position = position;
+
+		if (image_source instanceof HTMLImageElement) {
+			if (image_source.complete) {
+				this.did_image_load = true;
+			} else {
+				image_source.addEventListener("load", () => {
+					this.did_image_load = true;
+				}, { once: true });
+			}
+		} else {
+			this.did_image_load = true;
+		}
 	}
 
-	public change_image_source(new_image_source: CanvasImageSource): this {
+	public change_image_source(new_image_source: HTMLOrSVGImageElement): this {
 		this.__image_source = new_image_source;
 		return this;
 	}
@@ -27,6 +40,14 @@ export class ImageInfo {
 		this.__position.x = x;
 		this.__position.y = y;
 		return this;
+	}
+
+	clone(): ImageInfo {
+		return new ImageInfo(
+			this.__image_source,
+			this.__size.clone(),
+			this.__position.clone(),
+		);
 	}
 
 	get image_source(): CanvasImageSource {

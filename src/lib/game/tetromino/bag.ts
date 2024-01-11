@@ -1,4 +1,4 @@
-import type { Tetromino } from "./tetromino";
+import type Tetromino from "./tetromino";
 
 class TetrominoBag {
 	private readonly __bag: Tetromino[];
@@ -6,7 +6,7 @@ class TetrominoBag {
 
 	constructor(tetrominoes: Tetromino[]) {
 		// We slice since we need this to be independent of the original array.
-		// We don't want to mutate the original array as we shuffle the bug.
+		// We don't want to mutate the original array as we shuffle the bag.
 		this.__bag = tetrominoes.slice();
 		this.__current_tetromino = 0;
 
@@ -32,28 +32,14 @@ class TetrominoBag {
 		if (this.__current_tetromino === this.__bag.length - 1) {
 			this.refill();
 
-			if (this.__bag[0]!.is_with_color()) {
-				return this.__bag[0]!.clone();
-			}
-
-			if (this.__bag[0]!.is_with_sprite()) {
-				return this.__bag[0]!.clone();
-			}
+			return this.__bag[0]!.clone();
 		}
 
 		this.__current_tetromino += 1;
 
 		const tetromino = this.__bag[this.__current_tetromino]!;
 
-		if (tetromino.is_with_color()) {
-			return tetromino.clone();
-		}
-
-		if (tetromino.is_with_sprite()) {
-			return tetromino.clone();
-		}
-
-		return tetromino;
+		return tetromino.clone();
 	}
 }
 

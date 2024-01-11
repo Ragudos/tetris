@@ -1,18 +1,16 @@
-import { tetromino_config } from "../../../config/tetromino";
+import { tetromino_config, tetromino_default_shapes } from "../../../config/tetromino";
 import { ImageInfo } from "../../image-info";
 import { XY } from "../../xy";
-import {
-	tetromino_with_color_factory,
-	tetromino_with_sprite_factory,
-} from "./factory";
-import { Tetromino } from "./tetromino";
+import { get_sprite_position, sprite_size, type Sprites } from "./sprite";
+import Tetromino, { type TetrominoRotations } from "./tetromino";
 
 class TetrominoStorage {
 	private static __instance: TetrominoStorage;
 	private constructor() {}
 
-	private __tetrominoes_with_color: undefined | Tetromino[];
-	private __tetrominoes_with_sprite: undefined | Tetromino[];
+	private __tetrominoes: undefined | Tetromino[];
+	private __default_rotation: TetrominoRotations = 0;
+	private __sprite_type: Sprites = "block_like";
 
 	static get_instance(): TetrominoStorage {
 		if (!TetrominoStorage.__instance) {
@@ -22,183 +20,141 @@ class TetrominoStorage {
 		return TetrominoStorage.__instance;
 	}
 
-	get_bag_with_color(): Tetromino[] {
-		if (!this.__tetrominoes_with_color) {
-			this.generate_tetrominoes_with_color();
+	change_sprite_type(new_type: Sprites): void {
+		if (new_type === this.__sprite_type) {
+			return;
 		}
 
-		return this.__tetrominoes_with_color!;
+		this.__sprite_type = new_type;
+		this.__reset_sprites();
 	}
 
-	get_bag_with_sprite(): Tetromino[] {
-		if (!this.__tetrominoes_with_sprite) {
-			this.generate_tetrominoes_with_sprite();
+	private __reset_sprites(): void {
+		if (!this.__tetrominoes) {
+			this.__generate_tetrominoes();
+			return;
 		}
 
-		return this.__tetrominoes_with_sprite!;
+		for (let idx = 0; idx < this.__tetrominoes.length; ++idx) {
+			const tetromino = this.__tetrominoes[idx]!;
+			const new_position = get_sprite_position(tetromino.name, this.__sprite_type);
+
+			tetromino.sprite.change_position(new_position.x, new_position.y);
+		}
 	}
 
-	private generate_tetrominoes_with_color(): void {
-		this.__tetrominoes_with_color = [
-			tetromino_with_color_factory(
-				"I",
-				new XY(0, 0),
-				tetromino_config.size,
-			),
-			tetromino_with_color_factory(
-				"O",
-				new XY(0, 0),
-				tetromino_config.size,
-			),
-			tetromino_with_color_factory(
-				"T",
-				new XY(0, 0),
-				tetromino_config.size,
-			),
-			tetromino_with_color_factory(
-				"S",
-				new XY(0, 0),
-				tetromino_config.size,
-			),
-			tetromino_with_color_factory(
-				"Z",
-				new XY(0, 0),
-				tetromino_config.size,
-			),
-			tetromino_with_color_factory(
-				"J",
-				new XY(0, 0),
-				tetromino_config.size,
-			),
-			tetromino_with_color_factory(
-				"L",
-				new XY(0, 0),
-				tetromino_config.size,
-			),
-		];
-	}
-
-	private generate_tetrominoes_with_sprite(): void {
-		const image = document.getElementById(tetromino_config.spritesheet_id);
+	private __generate_tetrominoes(): void {
+		const image = document.getElementById(tetromino_config.spritesheet_id) as HTMLImageElement;
 
 		if (!image || !(image instanceof HTMLImageElement)) {
-			throw new Error("Tetromino spritesheet not found.");
+			throw new Error("Couldn't find the tetromino spritesheet.");
 		}
 
-		this.__tetrominoes_with_sprite = [
-			tetromino_with_sprite_factory(
-				"I",
-				new XY(0, 0),
-				tetromino_config.size,
-				new ImageInfo(
-					image,
-					new XY(
-						tetromino_config.sprite_block_size,
-						tetromino_config.sprite_block_size,
-					),
-					new XY(
-						tetromino_config.spritesheet_block_space,
-						tetromino_config.spritesheet_block_space,
-					),
-				),
-			),
-			tetromino_with_sprite_factory(
+		this.__tetrominoes = [
+			new Tetromino(
 				"O",
+				tetromino_default_shapes.srs.O,
 				new XY(0, 0),
 				tetromino_config.size,
+				this.__default_rotation,
+				"yellow",
 				new ImageInfo(
 					image,
-					new XY(
-						tetromino_config.sprite_block_size,
-						tetromino_config.sprite_block_size,
-					),
-					new XY(
-						tetromino_config.spritesheet_block_space,
-						tetromino_config.spritesheet_block_space,
-					),
-				),
+					new XY(sprite_size, sprite_size),
+					get_sprite_position("O", this.__sprite_type)
+				)
 			),
-			tetromino_with_sprite_factory(
-				"T",
+			new Tetromino(
+				"I",
+				tetromino_default_shapes.srs.I,
 				new XY(0, 0),
 				tetromino_config.size,
+				this.__default_rotation,
+				"cyan",
 				new ImageInfo(
 					image,
-					new XY(
-						tetromino_config.sprite_block_size,
-						tetromino_config.sprite_block_size,
-					),
-					new XY(
-						tetromino_config.spritesheet_block_space,
-						tetromino_config.spritesheet_block_space,
-					),
-				),
+					new XY(sprite_size, sprite_size),
+					get_sprite_position("I", this.__sprite_type)
+				)
 			),
-			tetromino_with_sprite_factory(
+			new Tetromino(
 				"S",
+				tetromino_default_shapes.srs.S,
 				new XY(0, 0),
 				tetromino_config.size,
+				this.__default_rotation,
+				"green",
 				new ImageInfo(
 					image,
-					new XY(
-						tetromino_config.sprite_block_size,
-						tetromino_config.sprite_block_size,
-					),
-					new XY(
-						tetromino_config.spritesheet_block_space,
-						tetromino_config.spritesheet_block_space,
-					),
-				),
+					new XY(sprite_size, sprite_size),
+					get_sprite_position("S", this.__sprite_type)
+				)
 			),
-			tetromino_with_sprite_factory(
+			new Tetromino(
 				"Z",
+				tetromino_default_shapes.srs.Z,
 				new XY(0, 0),
 				tetromino_config.size,
+				this.__default_rotation,
+				"red",
 				new ImageInfo(
 					image,
-					new XY(
-						tetromino_config.sprite_block_size,
-						tetromino_config.sprite_block_size,
-					),
-					new XY(
-						tetromino_config.spritesheet_block_space,
-						tetromino_config.spritesheet_block_space,
-					),
-				),
+					new XY(sprite_size, sprite_size),
+					get_sprite_position("Z", this.__sprite_type)
+				)
 			),
-			tetromino_with_sprite_factory(
-				"J",
-				new XY(0, 0),
-				tetromino_config.size,
-				new ImageInfo(
-					image,
-					new XY(
-						tetromino_config.sprite_block_size,
-						tetromino_config.sprite_block_size,
-					),
-					new XY(
-						tetromino_config.spritesheet_block_space,
-						tetromino_config.spritesheet_block_space,
-					),
-				),
-			),
-			tetromino_with_sprite_factory(
+			new Tetromino(
 				"L",
+				tetromino_default_shapes.srs.L,
 				new XY(0, 0),
 				tetromino_config.size,
+				this.__default_rotation,
+				"blue",
 				new ImageInfo(
 					image,
-					new XY(
-						tetromino_config.sprite_block_size,
-						tetromino_config.sprite_block_size,
-					),
-					new XY(
-						tetromino_config.spritesheet_block_space,
-						tetromino_config.spritesheet_block_space,
-					),
-				),
+					new XY(sprite_size, sprite_size),
+					get_sprite_position("L", this.__sprite_type)
+				)
+			),
+			new Tetromino(
+				"J",
+				tetromino_default_shapes.srs.J,
+				new XY(0, 0),
+				tetromino_config.size,
+				this.__default_rotation,
+				"orange",
+				new ImageInfo(
+					image,
+					new XY(sprite_size, sprite_size),
+					get_sprite_position("J", this.__sprite_type)
+				)
+			),
+			new Tetromino(
+				"T",
+				tetromino_default_shapes.srs.T,
+				new XY(0, 0),
+				tetromino_config.size,
+				this.__default_rotation,
+				"purple",
+				new ImageInfo(
+					image,
+					new XY(sprite_size, sprite_size),
+					get_sprite_position("T", this.__sprite_type)
+				)
 			),
 		];
+	}
+
+	get sprite_type(): Sprites {
+		return this.__sprite_type;
+	}
+
+	get tetrominoes(): Tetromino[] {
+		if (!this.__tetrominoes) {
+			this.__generate_tetrominoes();
+		}
+
+		return this.__tetrominoes!;
 	}
 }
 
