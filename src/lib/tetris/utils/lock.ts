@@ -29,9 +29,12 @@ export default class Lock {
             return;
         }
 
+        this.__game.time_storage.time_since_last_drop = 0;
         this.__is_locked = false;
         this.__num_of_resets += 1;
         this.__game.time_storage.time_since_lock_delay_started = 0;
+        this.__game.renderer.reset_flicker();
+        this.__game.renderer.brighten_block();
     }
 
     get is_locked(): boolean {

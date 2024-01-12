@@ -3,7 +3,7 @@ import config from "./config";
 import type Tetromino from "./tetromino";
 
 class Screen {
-    private __rows: number = config.screen.rows;
+    private __rows: number = config.screen.rows + 2;
     private __columns: number = config.screen.columns;
 
     /**
@@ -46,16 +46,17 @@ class Screen {
                 const real_y = position.y + y;
                 const real_x = position.x + x;
 
-                // -4 for more allowance in rotating blocks
                 if (
                     real_x - offset_left < 0 ||
                     real_x + offset_right >= this.__columns ||
                     real_y + offset_bottom >= this.__rows ||
                     real_y - offset_top < -4 ||
                     (this.grid[real_y + offset_bottom] && (
-                        this.grid[real_y + offset_bottom]![real_x] !== null) ||
+                        this.grid[real_y + offset_bottom]![real_x + offset_right] !== null ||
+                        this.grid[real_y + offset_bottom]![real_x - offset_left] !== null) ||
                     (this.grid[real_y - offset_top] && (
-                        this.grid[real_y - offset_top]![real_x] !== null) 
+                        this.grid[real_y - offset_top]![real_x + offset_right] !== null ||
+                        this.grid[real_y - offset_top]![real_x - offset_left] !== null) 
                     ))
                 ) {
                     return true;
@@ -252,7 +253,9 @@ class Screen {
             }
         }
 
-        console.log(lines);
+        if (lines > 0) {
+            console.log(`Cleared ${lines} lines.`);
+        }
     }
 }
 

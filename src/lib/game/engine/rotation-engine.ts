@@ -73,7 +73,7 @@ class RotationEngine {
 							0,
 							0,
 							0,
-							1,
+							0,
 							new_xy,
 							tmp_shape,
 						)

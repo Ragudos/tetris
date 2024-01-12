@@ -1,4 +1,4 @@
-import { tetromino_config, tetromino_default_shapes } from "../../../config/tetromino";
+import { tetromino_config, tetromino_default_rotations } from "../../../config/tetromino";
 import { ImageInfo } from "../../image-info";
 import { XY } from "../../xy";
 import { get_sprite_position, sprite_size, type Sprites } from "./sprite";
@@ -53,7 +53,7 @@ class TetrominoStorage {
 		this.__tetrominoes = [
 			new Tetromino(
 				"O",
-				tetromino_default_shapes.srs.O,
+				tetromino_default_rotations.srs.O,
 				new XY(0, 0),
 				tetromino_config.size,
 				this.__default_rotation,
@@ -66,7 +66,7 @@ class TetrominoStorage {
 			),
 			new Tetromino(
 				"I",
-				tetromino_default_shapes.srs.I,
+				tetromino_default_rotations.srs.I,
 				new XY(0, 0),
 				tetromino_config.size,
 				this.__default_rotation,
@@ -79,7 +79,7 @@ class TetrominoStorage {
 			),
 			new Tetromino(
 				"S",
-				tetromino_default_shapes.srs.S,
+				tetromino_default_rotations.srs.S,
 				new XY(0, 0),
 				tetromino_config.size,
 				this.__default_rotation,
@@ -92,7 +92,7 @@ class TetrominoStorage {
 			),
 			new Tetromino(
 				"Z",
-				tetromino_default_shapes.srs.Z,
+				tetromino_default_rotations.srs.Z,
 				new XY(0, 0),
 				tetromino_config.size,
 				this.__default_rotation,
@@ -105,7 +105,7 @@ class TetrominoStorage {
 			),
 			new Tetromino(
 				"L",
-				tetromino_default_shapes.srs.L,
+				tetromino_default_rotations.srs.L,
 				new XY(0, 0),
 				tetromino_config.size,
 				this.__default_rotation,
@@ -118,7 +118,7 @@ class TetrominoStorage {
 			),
 			new Tetromino(
 				"J",
-				tetromino_default_shapes.srs.J,
+				tetromino_default_rotations.srs.J,
 				new XY(0, 0),
 				tetromino_config.size,
 				this.__default_rotation,
@@ -131,7 +131,7 @@ class TetrominoStorage {
 			),
 			new Tetromino(
 				"T",
-				tetromino_default_shapes.srs.T,
+				tetromino_default_rotations.srs.T,
 				new XY(0, 0),
 				tetromino_config.size,
 				this.__default_rotation,

@@ -1,13 +1,37 @@
 import * as PIXI from 'pixi.js';
 import config from './config';
 import type Tetromino from './tetromino';
-import type { TetrominoNames, tetromino_colors } from './tetromino';
 import type Screen from './screen';
+import type { TetrominoNames, tetromino_colors } from '../../config/tetromino';
 
 export type Sprites = "basic" | "blocky";
 
+/**
+ * 
+ * @param t The time elapsed since the animation began
+ * @param b The beginning value
+ * @param c The change in value from start to end
+ * @param d The duration of the animation
+ */
+function ease_in_out(
+    t: number,
+    b: number,
+    c: number,
+    d: number
+) {
+    const divided_by_duration_and_half = t / d / 2;
+
+    if (
+    divided_by_duration_and_half <  1
+    ) {
+        return ((c / 2) * t) * (t + b);
+    }
+
+    return (-1 * c) / 2 * ((--t) * (t - 2) - 1) + b;
+}
+
 export default class Renderer extends PIXI.Container {
-    private __rows: number = config.screen.rows;
+    private __rows: number = config.screen.rows + 2;
     private __columns: number = config.screen.columns;
 
     readonly block_size: number = config.display.block_size;
@@ -16,6 +40,8 @@ export default class Renderer extends PIXI.Container {
         name: TetrominoNames | "ghost" | null,
         sprite: PIXI.Sprite
     }[][];
+
+    private __time_since_flicker: number = 0;
 
     constructor(type_of_sprite: Sprites) {
         super();
@@ -44,7 +70,7 @@ export default class Renderer extends PIXI.Container {
         }
     }
 
-    update_grid(row: number, column: number, name: null | "ghost" | TetrominoNames, color: typeof tetromino_colors[keyof typeof tetromino_colors]): void {
+    update_grid(row: number, column: number, name: null | "ghost" | TetrominoNames, color: typeof tetromino_colors[keyof typeof tetromino_colors], should_add_tint: boolean = false): void {
         if (row < 0) {
             return;
         }
@@ -61,8 +87,15 @@ export default class Renderer extends PIXI.Container {
             return;
         }
 
-        if (block.name === null && name !== null) {
-            block.name = name;
+        if (should_add_tint) {
+            block.sprite.tint = color;
+        }
+
+        if ((block.name === null || block.name === "ghost") && name !== null) {
+            if (block.sprite.blendMode === PIXI.BLEND_MODES.ERASE) {
+                block.sprite.blendMode = PIXI.BLEND_MODES.NORMAL
+            }
+
             block.sprite.texture = PIXI.Assets.cache.get(`${this.type_of_sprite}_${name.toLowerCase()}`) as PIXI.Texture;
         } else if (name === null) {
             block.name = null;
@@ -70,8 +103,86 @@ export default class Renderer extends PIXI.Container {
         }
     }
 
+    brighten_block(): void {
+        this.blocks.forEach((row) => {
+            row.forEach((block) => {
+                block.sprite.alpha = 1;
+            })
+        });
+    }
+
+    reset_flicker() {
+        this.__time_since_flicker = 0;
+    }
+
+    flicker_block(dt: number, tetromino: Tetromino) {
+        this.__time_since_flicker += dt;
+
+        const new_alpha = ease_in_out(
+            this.__time_since_flicker * 0.1,
+            1,
+            0.25,
+            1
+        );
+
+        if (new_alpha < 0) {
+            this.__time_since_flicker = 0;
+            return;
+        }
+
+        for (let y = 0; y < tetromino.shape.length; ++y) {
+            const row = tetromino.shape[y];
+
+            if (!row) {
+                continue
+            }
+
+            for (let x = 0; x < row.length; ++x) {
+                const block = row[x];
+
+                if (!block) {
+                    continue;
+                }
+
+                const pixi_block = this.blocks[y + tetromino.position.y];
+
+                if (!pixi_block) {
+                    continue;
+                }
+
+                const b = pixi_block[x + tetromino.position.x];
+
+                if (!b) {
+                    continue;
+                }
+
+                b.sprite.alpha = new_alpha;
+            }
+        }
+    }
+
+    update_overflow(): void {
+        for (let y = 0; y < 2; ++y) {
+            const row = this.blocks[y];
+
+            if (!row) {
+                continue;
+            }
+
+            for (let x = 0; x < this.__columns; ++x) {
+                const block = row[x];
+
+                if (!block) {
+                    continue;
+                }
+
+                block.sprite.blendMode = PIXI.BLEND_MODES.ERASE
+            }
+        }
+    }
+
     update_screen(screen: Screen): void {
-        for (let y = 0; y < this.__rows; ++y) {
+        for (let y = 2; y < this.__rows; ++y) {
             const row = screen.grid[y];
 
             if (!row) {
@@ -85,7 +196,8 @@ export default class Renderer extends PIXI.Container {
                     y,
                     x,
                     block?.name ?? null,
-                    block?.color ?? "#212121"
+                    "#fff",
+                    true
                 )
             }
         }
@@ -110,9 +222,37 @@ export default class Renderer extends PIXI.Container {
                     tetromino.position.y + y,
                     tetromino.position.x + x,
                     tetromino.name,
-                    tetromino.color
+                    "#fff",
+                    true
                 );
             }
         }
     }
+
+    update_ghost(ghost_y: number, tetromino: Tetromino): void {
+        for (let y = 0; y < tetromino.shape.length; ++y) {
+            const row = tetromino.shape[y];
+
+            if (!row) {
+                continue
+            }
+
+            for (let x = 0; x < row.length; ++x) {
+                const block = row[x];
+
+                if (!block) {
+                    continue;
+                }
+
+                this.update_grid(
+                    ghost_y + y,
+                    tetromino.position.x + x,
+                    "ghost",
+                    "#707070",
+                    true
+                );
+            }
+        }
+    }
+        
 }

@@ -7,15 +7,19 @@ export interface KeyBindings {
     hard_drop: string;
     rotate_left: string;
     rotate_right: string;
+    hold: string;
 }
 
-export const DEFAULT_KEYS = {
+export const DEFAULT_KEYS: {
+    [key in keyof KeyBindings]: string;
+} = {
     "move_left": "ArrowLeft",
     "move_right": "ArrowRight",
     "soft_drop": "ArrowDown",
     "hard_drop": " ",
     "rotate_left": "Ctrl",
     "rotate_right": "ArrowUp",
+    "hold": "Shift",
 } as const;
 
 export default class Key {
@@ -23,8 +27,9 @@ export default class Key {
     readonly action: string;
     
     private __pressed: boolean = false;
-    private __num_of_resets: number = 0;
-    private __timer: number = 0;
+    private __did_trigger_once = false;
+    private __num_of_repeats = 0;
+    private __counter = 0;
 
     constructor(action: keyof typeof DEFAULT_KEYS, custom_key?: string) {
         this.action = action;
@@ -36,33 +41,34 @@ export default class Key {
             return false;
         }
 
-        // If the key is pressed for the first time, we return true since
-        // we only want to trigger these once.
         if (
-            (this.action === "rotate_left" ||
+            this.action === "rotate_left" ||
             this.action === "rotate_right" ||
-            this.action === "hard_drop")
+            this.action === "hard_drop" ||
+            this.action === "hold"
         ) {
-            if (this.__timer === 0) {
-                this.__timer -= 1;
-                return true;
+            if (this.__did_trigger_once) {
+                return false;
             }
-
-            return false;
         }
 
-        this.__timer -= 1;
-
-        if (this.__timer > 0) {
-            return false;
+        if (this.__pressed) {
+            this.__did_trigger_once = true;
         }
 
-        this.__timer = (this.__num_of_resets > 0)
-            ? config.controls.delay
-            : config.controls.initial_delay;
-        this.__num_of_resets += 1;
+        this.__counter -= 1;
 
-        return true;
+        if (this.__counter <= 0) {
+            this.__counter = (this.__num_of_repeats > 0)
+                ? config.controls.delay
+                : config.controls.initial_delay;
+
+            this.__num_of_repeats += 1;
+
+            return true;
+        }
+
+        return false;
     }
 
     press(): void {
@@ -71,7 +77,16 @@ export default class Key {
 
     release(): void {
         this.__pressed = false;
-        this.__num_of_resets = 0;
-        this.__timer = 0;
+        this.__did_trigger_once = false;
+        this.__counter = 0;
+        this.__num_of_repeats = 0;
+    }
+
+    is_pressed() {
+        return this.__pressed;
+    }
+
+    get did_trigger_once() {
+        return this.__did_trigger_once;
     }
 }

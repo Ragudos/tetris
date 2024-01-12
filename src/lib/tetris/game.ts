@@ -2,7 +2,6 @@ import * as PIXI from "pixi.js";
 import Renderer, { type Sprites } from "./renderer";
 import Screen from "./screen";
 import TetrominoBag from "./tetromino/bag";
-import Tetromino, { type KickData } from "./tetromino";
 import { XY } from "../xy";
 import Time from "./utils/time";
 import Key, { DEFAULT_KEYS, type KeyBindings } from "./utils/key";
@@ -10,8 +9,10 @@ import Drop from "./utils/drop";
 import Lock from "./utils/lock";
 import type { ROTATION_DIR } from "../types";
 import { rotate_matrix } from "../utils/matrix-utils";
-import { srs_kick_data } from "../../config/tetromino";
+import { srs_kick_data, type KickData } from "../../config/tetromino";
 import config from "./config";
+import Tetromino from "./tetromino";
+import type UserSettings from "./user-settings";
 
 export type GameStates = "running" | "paused" | "gameover";
 
@@ -22,6 +23,7 @@ export default class Game {
     private __bag: TetrominoBag
     private __current_tetromino: Tetromino;
     private __next_tetromino: Tetromino;
+    private __swapped_tetromino: null | Tetromino = null;
 
     private __screen: Screen = new Screen();
     private __time_storage: Time = new Time(this);
@@ -34,7 +36,11 @@ export default class Game {
 
     public state: GameStates = "paused";
 
-    constructor(app: PIXI.Application, sprite_style: Sprites, kick_data: KickData, key_bindings?: Partial<KeyBindings>) {
+    private __can_swap: boolean;
+
+    public ghost_y: number = 18;
+
+    constructor(app: PIXI.Application, sprite_style: Sprites, kick_data: KickData, key_bindings?: Partial<KeyBindings>, user_setting?: UserSettings) {
         this.__app = app;
         this.__renderer = new Renderer(sprite_style);
         this.__bag = new TetrominoBag(
@@ -61,8 +67,11 @@ export default class Game {
             rotate_left: new Key("rotate_left", key_bindings?.rotate_left || DEFAULT_KEYS.rotate_left),
             rotate_right: new Key("rotate_right", key_bindings?.rotate_right || DEFAULT_KEYS.rotate_right),
             soft_drop: new Key("soft_drop", key_bindings?.soft_drop || DEFAULT_KEYS.soft_drop),
-            hard_drop: new Key("hard_drop", key_bindings?.hard_drop || DEFAULT_KEYS.hard_drop)
-        }
+            hard_drop: new Key("hard_drop", key_bindings?.hard_drop || DEFAULT_KEYS.hard_drop),
+            hold: new Key("hold", key_bindings?.hold || DEFAULT_KEYS.hold),
+        };
+
+        this.__can_swap = true;
     }
 
     start() {
@@ -70,23 +79,14 @@ export default class Game {
             return;
         }
 
-        const background = new PIXI.TilingSprite(
-            PIXI.Assets.cache.get("background"),
-            this.__app.renderer.width,
-            this.__app.renderer.height
-        );
-
-        this.__app.stage.addChild(background);
-
         this.state = "running";
 
         this.__app.ticker.add(this.__update, this);
         this.__app.stage.addChild(this.__renderer);
+        this.recalculate_ghost_y();
     }
 
     private __move_down(): void {
-        this.__time_storage.time_since_last_drop = 0;
-
         if (this.__screen.is_colliding_down(
             this.__current_tetromino.position,
             this.__current_tetromino.shape,
@@ -97,6 +97,7 @@ export default class Game {
             return;
         }
 
+        this.__time_storage.time_since_last_drop = 0;
         this.__current_tetromino.position.y += 1;
 
         if (this.__screen.is_colliding_down(
@@ -105,6 +106,8 @@ export default class Game {
             1
         )) {
             this.__lock.start_locking();
+
+            return;
         }
     }
 
@@ -119,11 +122,8 @@ export default class Game {
             return;
         }
 
-        if (this.__lock.is_locked && this.__lock.can_reset) {
-            this.__lock.reset_lock();
-        }
-
         this.__current_tetromino.position.x -= 1;
+        this.recalculate_ghost_y();
     }
 
     private __move_right(): void {
@@ -136,12 +136,9 @@ export default class Game {
         ) {
             return;
         }
-        
-        if (this.__lock.is_locked && this.__lock.can_reset) {
-            this.__lock.reset_lock();
-        }
 
         this.__current_tetromino.position.x += 1;
+        this.recalculate_ghost_y();
     }
 
     private __srs_rotation(dir: ROTATION_DIR): void {
@@ -190,13 +187,11 @@ export default class Game {
                         this.__screen.is_colliding(
                             new_xy,
                             tmp_shape,
-                            0, 0, 0, 1
+                            0, 0, 0, 0
                         )
                     ) {
                         continue;
                     }
-
-                    console.log("chosen data: ", kick_data)
 
                     if (this.__lock.is_locked) {
                         this.__lock.reset_lock();
@@ -219,7 +214,7 @@ export default class Game {
             return;
         }
 
-        if (this.__lock.can_reset === false && this.__lock.is_locked) {
+        if (!this.__lock.can_reset && this.__lock.is_locked) {
             return;
         }
 
@@ -228,6 +223,9 @@ export default class Game {
                 this.__srs_rotation(dir);
                 break;
         }
+
+        this.recalculate_ghost_y();
+
     }
 
     private __update_time(dt: number): void {
@@ -238,9 +236,50 @@ export default class Game {
         }
     }
 
-    private __update_tetromino(dt: number): void {
+    private __swap_block(): void {
+        if (!this.__can_swap) {
+            return;
+        }
+
+        if (!this.__swapped_tetromino) {
+            this.__swapped_tetromino = this.__current_tetromino;
+            this.__swapped_tetromino.reset_rotation();
+            this.__swapped_tetromino.position.x = 0;
+            this.__swapped_tetromino.position.y = 0;
+        
+            this.__next_tetromino.position.x = config.base_position.x;
+            this.__next_tetromino.position.y = config.base_position.y;
+
+            this.__current_tetromino = this.__next_tetromino;         
+
+            this.__next_tetromino = this.__bag.tetromino;   
+        } else {
+            const tmp = this.__swapped_tetromino;
+            this.__swapped_tetromino = this.__current_tetromino;
+            this.__swapped_tetromino.reset_rotation();
+            this.__swapped_tetromino.position.x = 0;
+            this.__swapped_tetromino.position.y = 0;
+
+            this.__current_tetromino = tmp;
+            this.__current_tetromino.position.x = config.base_position.x;
+            this.__current_tetromino.position.y = config.base_position.y;
+        }
+
+        this.__lock.stop_locking();
+        this.recalculate_ghost_y();
+
+        this.__can_swap = false;
+    }
+
+    private __update_tetromino(_dt: number): void {
         // Let the hard drop finish
         if (this.__drop.is_hard_dropping) {
+            return;
+        }
+
+        if (this.__keys.hard_drop.is_triggered()) {
+            this.__drop.hard_drop();
+
             return;
         }
 
@@ -254,44 +293,64 @@ export default class Game {
             }
         } else {
             if (this.__time_storage.time_since_lock_delay_started >= this.__lock.lock_delay) {
-                /** if (this.__screen.is_colliding(
+                if (this.__screen.is_colliding(
                     this.__current_tetromino.position,
                     this.__current_tetromino.shape,
-                    0, 4, 0, 0
+                    0, 0, 0, 0
                 )) {
                     this.state = "gameover";
                     console.log("gameover");
                     return;
-                } */
+                }
 
-                this.__screen.occupy_grid(this.__current_tetromino);
-                this.spawn_new_tetromino();
-                this.__lock.stop_locking();
+                if (!this.__screen.is_colliding_down(
+                    this.__current_tetromino.position,
+                    this.__current_tetromino.shape,
+                    1
+                )) {
+                    this.__move_down();
+                    return;
+                }
 
-                this.__screen.clear_rows();
+                this.lock_current_block(); 
 
                 return;
             }
         }
-
+            
         if (this.__keys.move_left.is_triggered()) {
+            if (!this.__lock.can_reset && this.__lock.is_locked) {
+                return;
+            }
+
             this.__move_left();
+
             if (
                 this.__lock.is_locked &&
                 this.__lock.can_reset
             ) {
                 this.__lock.reset_lock();
             }
-        } else if (this.__keys.move_right.is_triggered()) {
+        }
+        
+        if (this.__keys.move_right.is_triggered()) {
+            if (!this.__lock.can_reset && this.__lock.is_locked) {
+                return;
+            }
+
             this.__move_right();
+
             if (
                 this.__lock.is_locked &&
                 this.__lock.can_reset
             ) {
                 this.__lock.reset_lock();
             }
-        } else if (this.__keys.rotate_left.is_triggered()) {
+        }
+        
+        if (this.__keys.rotate_left.is_triggered()) {
             this.__rotate(-1);
+
             if (
                 this.__lock.is_locked &&
                 this.__lock.can_reset
@@ -307,6 +366,10 @@ export default class Game {
                 this.__lock.reset_lock();
             }
         }
+        
+        if (this.__keys.hold.is_triggered()) {
+            this.__swap_block();
+        }
     }
 
     private __update(dt: number) {
@@ -315,10 +378,34 @@ export default class Game {
         }
 
         this.__update_time(dt);
-        this.__update_tetromino(dt);
+        if (this.__current_tetromino.position.y <= 2) {
+            this.__renderer.update_overflow();
+        }
 
+        this.__update_tetromino(dt);
         this.__renderer.update_screen(this.__screen);
+        this.__renderer.update_ghost(this.ghost_y, this.__current_tetromino);
         this.__renderer.update_tetromino(this.__current_tetromino);
+
+        if (this.__lock.is_locked) {
+            this.__renderer.flicker_block(dt, this.__current_tetromino);
+        }
+    }
+
+    recalculate_ghost_y(): void {
+        const tmp_pos = this.__current_tetromino.position.clone();
+
+        while (
+            !this.__screen.is_colliding_down(
+                tmp_pos,
+                this.__current_tetromino.shape,
+                1
+            )
+        ) {
+            tmp_pos.y += 1;
+        }
+
+        this.ghost_y = tmp_pos.y;
     }
 
     spawn_new_tetromino(): void {
@@ -327,6 +414,23 @@ export default class Game {
         
         this.__current_tetromino = this.__next_tetromino;
         this.__next_tetromino = this.__bag.tetromino;
+
+        this.__can_swap = true;
+    }
+
+    lock_current_block(): void {
+        this.__screen.occupy_grid(this.__current_tetromino);
+        this.__renderer.reset_flicker();
+        this.__renderer.brighten_block();
+        this.spawn_new_tetromino();
+        this.__lock.stop_locking();
+        this.__screen.clear_rows();
+        this.recalculate_ghost_y();
+        this.__time_storage.time_since_last_drop = 0;
+    }
+
+    get renderer() {
+        return this.__renderer;
     }
 
     get time_storage(): Time {
@@ -335,5 +439,17 @@ export default class Game {
 
     get keys() {
         return this.__keys;
+    }
+
+    get current_tetromino() {
+        return this.__current_tetromino;
+    }
+
+    get screen() {
+        return this.__screen;
+    }
+
+    get lock() {
+        return this.__lock;
     }
 }

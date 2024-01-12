@@ -11,11 +11,11 @@ export default {
         rows: 20,
     },
     controls: {
-        delay: 2,
-        initial_delay: 6
+        delay: 4,
+        initial_delay: 10
     },
     lock: {
-        max_resets: 10,
+        max_resets: 20,
         delay: 50
     },
     base_position: new XY(4, 0)

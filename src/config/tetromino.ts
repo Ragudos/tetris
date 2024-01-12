@@ -5,45 +5,65 @@ export const tetromino_config = {
 	sprite_image_name: "spritesheet.png",
 } as const;
 
-export const tetromino_default_shapes = {
-	srs: {
-		I: [
-			[0, 0, 0, 0],
-			[1, 1, 1, 1],
-			[0, 0, 0, 0],
-			[0, 0, 0, 0],
-		],
-		J: [
-			[0, 0, 1],
-			[1, 1, 1],
-			[0, 0, 0],
-		],
-		L: [
-			[1, 0, 0],
-			[1, 1, 1],
-			[0, 0, 0],
-		],
-		O: [
-			[1, 1],
-			[1, 1],
-		],
-		S: [
-			[0, 1, 1],
-			[1, 1, 0],
-			[0, 0, 0],
-		],
-		T: [
-			[0, 1, 0],
-			[1, 1, 1],
-			[0, 0, 0],
-		],
-		Z: [
-			[1, 1, 0],
-			[0, 1, 1],
-			[0, 0, 0],
-		],
-	},
+export type TetrominoNames = "I" | "J" | "L" | "O" | "S" | "T" | "Z";
+export type KickData = "srs";
+
+export const tetromino_colors: {
+    [Property in TetrominoNames]: string
+} = {
+    "I": "00ffff",
+    "L": "0000ff",
+    "J": "ffa500",
+    "O": "ffff00",
+    "S": "00ff00",
+    "T": "800080",
+    "Z": "ff0000",
 };
+
+export const tetromino_default_rotations: {
+    [Property in KickData]: {
+        [Property in TetrominoNames]: number[][]
+    }
+} = {
+    srs: {
+        "I": [
+            [0, 0, 0, 0],
+            [1, 1, 1, 1],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+        ],
+        "L": [
+            [1, 0, 0],
+            [1, 1, 1],
+            [0, 0, 0],
+        ],
+        "J": [
+            [0, 0, 1],
+            [1, 1, 1],
+            [0, 0, 0],
+        ],
+        "O": [
+            [1, 1],
+            [1, 1],
+        ],
+        "S": [
+            [0, 1, 1],
+            [1, 1, 0],
+            [0, 0, 0],
+        ],
+        "T": [
+            [0, 1, 0],
+            [1, 1, 1],
+            [0, 0, 0],
+        ],
+        "Z": [
+            [1, 1, 0],
+            [0, 1, 1],
+            [0, 0, 0],
+        ],
+    }   
+}
+
 
 /**
  * SRS KICK DATA
