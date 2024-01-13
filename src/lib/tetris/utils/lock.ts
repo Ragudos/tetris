@@ -37,6 +37,22 @@ export default class Lock {
         this.__game.renderer.brighten_block();
     }
 
+    reset_lock_if_possible(): void {
+        if (this.__is_locked && this.can_reset) {
+            this.reset_lock();
+        }
+    }
+
+    lock_if_possible(): void {
+        if (this.__game.screen.is_colliding_down(
+            this.__game.current_tetromino.position,
+            this.__game.current_tetromino.shape,
+            1
+        )) {
+            this.start_locking();
+        }
+    }
+
     get is_locked(): boolean {
        return this.__is_locked; 
     }

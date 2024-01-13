@@ -6,28 +6,8 @@ import type { TetrominoNames, tetromino_colors } from '../../config/tetromino';
 
 export type Sprites = "basic" | "blocky";
 
-/**
- * 
- * @param t The time elapsed since the animation began
- * @param b The beginning value
- * @param c The change in value from start to end
- * @param d The duration of the animation
- */
-function ease_in_out(
-    t: number,
-    b: number,
-    c: number,
-    d: number
-) {
-    const divided_by_duration_and_half = t / d / 2;
-
-    if (
-    divided_by_duration_and_half <  1
-    ) {
-        return ((c / 2) * t) * (t + b);
-    }
-
-    return (-1 * c) / 2 * ((--t) * (t - 2) - 1) + b;
+function beizer_ease_out(t: number) {
+    return t * t * (3 - 2 * t);
 }
 
 export default class Renderer extends PIXI.Container {
@@ -42,6 +22,7 @@ export default class Renderer extends PIXI.Container {
     }[][];
 
     private __time_since_flicker: number = 0;
+    private __current_operation: "+" | "-" = "+";
 
     constructor(type_of_sprite: Sprites) {
         super();
@@ -116,18 +97,21 @@ export default class Renderer extends PIXI.Container {
     }
 
     flicker_block(dt: number, tetromino: Tetromino) {
-        this.__time_since_flicker += dt;
+        if (this.__current_operation === "+") {
+            this.__time_since_flicker += dt;
+        } else {
+            this.__time_since_flicker -= dt;
+        }
 
-        const new_alpha = ease_in_out(
-            this.__time_since_flicker * 0.1,
-            1,
-            0.25,
-            1
-        );
+        const fraction = (dt - this.__time_since_flicker) / (config.lock.delay * 2);
+        const new_alpha = beizer_ease_out(fraction);
 
-        if (new_alpha < 0) {
-            this.__time_since_flicker = 0;
-            return;
+        if (new_alpha > 1) {
+            this.__current_operation = "-";
+        }
+
+        if (new_alpha <= 0.5) {
+            this.__current_operation = "+";
         }
 
         for (let y = 0; y < tetromino.shape.length; ++y) {

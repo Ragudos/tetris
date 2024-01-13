@@ -112,6 +112,10 @@ export default class Game {
     }
 
     private __move_left(): void {
+        if (!this.__lock.can_reset && this.__lock.is_locked) {
+            return;
+        }
+        
         if (
             this.__screen.is_colliding_left(
                 this.__current_tetromino.position,
@@ -127,6 +131,10 @@ export default class Game {
     }
 
     private __move_right(): void {
+        if (!this.__lock.can_reset && this.__lock.is_locked) {
+            return;
+        }
+
         if (
             this.__screen.is_colliding_right(
                 this.__current_tetromino.position,
@@ -319,52 +327,27 @@ export default class Game {
         }
             
         if (this.__keys.move_left.is_triggered()) {
-            if (!this.__lock.can_reset && this.__lock.is_locked) {
-                return;
-            }
-
             this.__move_left();
-
-            if (
-                this.__lock.is_locked &&
-                this.__lock.can_reset
-            ) {
-                this.__lock.reset_lock();
-            }
+            this.__lock.reset_lock_if_possible();
+            this.__lock.lock_if_possible();
         }
         
         if (this.__keys.move_right.is_triggered()) {
-            if (!this.__lock.can_reset && this.__lock.is_locked) {
-                return;
-            }
-
             this.__move_right();
-
-            if (
-                this.__lock.is_locked &&
-                this.__lock.can_reset
-            ) {
-                this.__lock.reset_lock();
-            }
+            this.__lock.reset_lock_if_possible(); 
+            this.__lock.lock_if_possible();
         }
         
         if (this.__keys.rotate_left.is_triggered()) {
             this.__rotate(-1);
-
-            if (
-                this.__lock.is_locked &&
-                this.__lock.can_reset
-            ) {
-                this.__lock.reset_lock();
-            }
-        } else if (this.__keys.rotate_right.is_triggered()) {
+            this.__lock.reset_lock_if_possible();
+            this.__lock.lock_if_possible();
+        }
+        
+        if (this.__keys.rotate_right.is_triggered()) {
             this.__rotate(1);
-            if (
-                this.__lock.is_locked &&
-                this.__lock.can_reset
-            ) {
-                this.__lock.reset_lock();
-            }
+            this.__lock.reset_lock_if_possible();
+            this.__lock.lock_if_possible();
         }
         
         if (this.__keys.hold.is_triggered()) {
@@ -420,10 +403,10 @@ export default class Game {
 
     lock_current_block(): void {
         this.__screen.occupy_grid(this.__current_tetromino);
+        this.__lock.stop_locking();
         this.__renderer.reset_flicker();
         this.__renderer.brighten_block();
         this.spawn_new_tetromino();
-        this.__lock.stop_locking();
         this.__screen.clear_rows();
         this.recalculate_ghost_y();
         this.__time_storage.time_since_last_drop = 0;
