@@ -1,4 +1,4 @@
-import type Tetromino  from "../tetromino/tetromino";
+import type Tetromino from "../tetromino/tetromino";
 import MovementEngine from "../engine/movement-engine";
 import CollisionEngine from "../engine/collision-engine";
 import TetrominoBag from "../tetromino/bag";
@@ -23,7 +23,7 @@ class GameCanvas {
 
 	id: string;
 	game_map: (null | Tetromino)[][];
-	
+
 	current_block: Tetromino;
 	next_block: Tetromino;
 	swapped_block: null | Tetromino;
@@ -51,7 +51,7 @@ class GameCanvas {
 		this.id = id;
 
 		const canvas = document.getElementById(id) as HTMLCanvasElement;
-		
+
 		if (!canvas) {
 			throw new Error(`Couldn't find canvas with id ${id}`);
 		}
@@ -59,7 +59,9 @@ class GameCanvas {
 		const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
 		if (!ctx) {
-			throw new Error(`Couldn't get canvas context for canvas with id ${id}`);
+			throw new Error(
+				`Couldn't get canvas context for canvas with id ${id}`,
+			);
 		}
 
 		this.canvas = canvas;
@@ -67,9 +69,9 @@ class GameCanvas {
 
 		this.renderer = new Timer();
 		this.renderer.add(this.render.bind(this));
-		
+
 		this.bag = new TetrominoBag(blocks);
-		
+
 		this.is_game_over = false;
 
 		this.game_map = new Array(20)
@@ -95,7 +97,10 @@ class GameCanvas {
 		this.size = size;
 
 		this.ghost_y_pos = 18;
-		this.ghost_sprite_position = get_sprite_position("ghost", storage.sprite_type);
+		this.ghost_sprite_position = get_sprite_position(
+			"ghost",
+			storage.sprite_type,
+		);
 	}
 
 	private handle_soft_drop(): void {
@@ -193,8 +198,7 @@ class GameCanvas {
 	}
 
 	get_new_block(): void {
-		this.current_block =
-			this.next_block || this.bag.get_tetromino();
+		this.current_block = this.next_block || this.bag.get_tetromino();
 		this.next_block = this.bag.get_tetromino();
 
 		this.current_block!.position.x = this.base_x_position;

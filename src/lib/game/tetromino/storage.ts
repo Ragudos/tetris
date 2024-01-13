@@ -1,4 +1,7 @@
-import { tetromino_config, tetromino_default_rotations } from "../../../config/tetromino";
+import {
+	tetromino_config,
+	tetromino_default_rotations,
+} from "../../../config/tetromino";
 import { ImageInfo } from "../../image-info";
 import { XY } from "../../xy";
 import { get_sprite_position, sprite_size, type Sprites } from "./sprite";
@@ -37,14 +40,19 @@ class TetrominoStorage {
 
 		for (let idx = 0; idx < this.__tetrominoes.length; ++idx) {
 			const tetromino = this.__tetrominoes[idx]!;
-			const new_position = get_sprite_position(tetromino.name, this.__sprite_type);
+			const new_position = get_sprite_position(
+				tetromino.name,
+				this.__sprite_type,
+			);
 
 			tetromino.sprite.change_position(new_position.x, new_position.y);
 		}
 	}
 
 	private __generate_tetrominoes(): void {
-		const image = document.getElementById(tetromino_config.spritesheet_id) as HTMLImageElement;
+		const image = document.getElementById(
+			tetromino_config.spritesheet_id,
+		) as HTMLImageElement;
 
 		if (!image || !(image instanceof HTMLImageElement)) {
 			throw new Error("Couldn't find the tetromino spritesheet.");
@@ -61,8 +69,8 @@ class TetrominoStorage {
 				new ImageInfo(
 					image,
 					new XY(sprite_size, sprite_size),
-					get_sprite_position("O", this.__sprite_type)
-				)
+					get_sprite_position("O", this.__sprite_type),
+				),
 			),
 			new Tetromino(
 				"I",
@@ -74,8 +82,8 @@ class TetrominoStorage {
 				new ImageInfo(
 					image,
 					new XY(sprite_size, sprite_size),
-					get_sprite_position("I", this.__sprite_type)
-				)
+					get_sprite_position("I", this.__sprite_type),
+				),
 			),
 			new Tetromino(
 				"S",
@@ -87,8 +95,8 @@ class TetrominoStorage {
 				new ImageInfo(
 					image,
 					new XY(sprite_size, sprite_size),
-					get_sprite_position("S", this.__sprite_type)
-				)
+					get_sprite_position("S", this.__sprite_type),
+				),
 			),
 			new Tetromino(
 				"Z",
@@ -100,8 +108,8 @@ class TetrominoStorage {
 				new ImageInfo(
 					image,
 					new XY(sprite_size, sprite_size),
-					get_sprite_position("Z", this.__sprite_type)
-				)
+					get_sprite_position("Z", this.__sprite_type),
+				),
 			),
 			new Tetromino(
 				"L",
@@ -113,8 +121,8 @@ class TetrominoStorage {
 				new ImageInfo(
 					image,
 					new XY(sprite_size, sprite_size),
-					get_sprite_position("L", this.__sprite_type)
-				)
+					get_sprite_position("L", this.__sprite_type),
+				),
 			),
 			new Tetromino(
 				"J",
@@ -126,8 +134,8 @@ class TetrominoStorage {
 				new ImageInfo(
 					image,
 					new XY(sprite_size, sprite_size),
-					get_sprite_position("J", this.__sprite_type)
-				)
+					get_sprite_position("J", this.__sprite_type),
+				),
 			),
 			new Tetromino(
 				"T",
@@ -139,8 +147,8 @@ class TetrominoStorage {
 				new ImageInfo(
 					image,
 					new XY(sprite_size, sprite_size),
-					get_sprite_position("T", this.__sprite_type)
-				)
+					get_sprite_position("T", this.__sprite_type),
+				),
 			),
 		];
 	}

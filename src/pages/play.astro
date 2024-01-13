@@ -3,36 +3,11 @@ import Main from "../layouts/Main.astro"
 ---
 
 <Main>
-    <main class="container">
-        <div class="canvas-container">
-        </div>
-
-       <!-- <div class="countdown-container">
-            <div>The game starts in</div>
-            <div id="countdown">3</div>
-        </div> --> 
-    </main>
 </Main>
-<style>
-    .canvas-container {
-        display: grid;
-        place-items: center;
-        min-height: 100dvh;
-    }
-
-    .container {
-        position: relative;
-    }
-
-    .countdown-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: absolute;
-        margin: auto;
-        inset: 0;
-        z-index: 10;
+<style is:global>
+    canvas {
+        max-width: 100%;
+        max-height: 100%;
     }
 </style>
 <script src="../lib/tetris/index"></script>

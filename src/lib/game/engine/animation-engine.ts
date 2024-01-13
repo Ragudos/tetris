@@ -3,12 +3,15 @@ import type Tetromino from "../tetromino/tetromino";
 
 class AnimationEngine {
 	private game_canvas: GameCanvas;
-	
+
 	constructor(game_canvas: GameCanvas) {
 		this.game_canvas = game_canvas;
 	}
 
-	draw_game_map(game_map: (null | Tetromino)[][], context: CanvasRenderingContext2D): void {
+	draw_game_map(
+		game_map: (null | Tetromino)[][],
+		context: CanvasRenderingContext2D,
+	): void {
 		for (let y = 0; y < game_map.length; y++) {
 			for (let x = 0; x < game_map[y]!.length; x++) {
 				const block = game_map[y]![x];
@@ -63,7 +66,6 @@ class AnimationEngine {
 			return;
 		}
 
-		
 		if (block.sprite.did_image_load) {
 			for (let y = 0; y < block.shape.length; y++) {
 				for (let x = 0; x < block.shape[y]!.length; x++) {
@@ -78,7 +80,8 @@ class AnimationEngine {
 						block.sprite.size.x,
 						block.sprite.size.y,
 						(block.position.x + x) * this.game_canvas.size,
-						(this.game_canvas.ghost_y_pos + y) * this.game_canvas.size,
+						(this.game_canvas.ghost_y_pos + y) *
+							this.game_canvas.size,
 						this.game_canvas.size,
 						this.game_canvas.size,
 					);
@@ -95,7 +98,8 @@ class AnimationEngine {
 
 					this.game_canvas.ctx.fillRect(
 						(block.position.x + x) * this.game_canvas.size,
-						(this.game_canvas.ghost_y_pos + y) * this.game_canvas.size,
+						(this.game_canvas.ghost_y_pos + y) *
+							this.game_canvas.size,
 						this.game_canvas.size,
 						this.game_canvas.size,
 					);

@@ -16,9 +16,13 @@ export class ImageInfo {
 			if (image_source.complete) {
 				this.did_image_load = true;
 			} else {
-				image_source.addEventListener("load", () => {
-					this.did_image_load = true;
-				}, { once: true });
+				image_source.addEventListener(
+					"load",
+					() => {
+						this.did_image_load = true;
+					},
+					{ once: true },
+				);
 			}
 		} else {
 			this.did_image_load = true;

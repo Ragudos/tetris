@@ -108,7 +108,9 @@ class MovementEngine {
 				this.game_canvas.movement_engine.move_block(-1);
 
 				const new_x_pull =
-					this.x_pull - this.x_pull_multiplier * (this.__increases === 0 ? 1 : this.__increases);
+					this.x_pull -
+					this.x_pull_multiplier *
+						(this.__increases === 0 ? 1 : this.__increases);
 
 				if (new_x_pull >= this.x_pull_limit) {
 					this.x_pull = new_x_pull;
@@ -143,7 +145,9 @@ class MovementEngine {
 				this.game_canvas.movement_engine.move_block(1);
 
 				const new_x_pull =
-					this.x_pull - this.x_pull_multiplier * (this.__increases === 0 ? 1 : this.__increases);
+					this.x_pull -
+					this.x_pull_multiplier *
+						(this.__increases === 0 ? 1 : this.__increases);
 
 				if (new_x_pull >= this.x_pull_limit) {
 					this.x_pull = new_x_pull;
