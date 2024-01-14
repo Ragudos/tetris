@@ -2,10 +2,10 @@ import { XY } from "../xy";
 
 export default {
 	display: {
-		width: 200,
+		width: 250,
 		side_width: 75,
-		height: 400,
-		block_size: 20,
+		height: 500,
+		block_size: 25,
 	},
 	screen: {
 		columns: 10,

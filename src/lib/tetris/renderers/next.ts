@@ -1,23 +1,13 @@
 import * as PIXI from "pixi.js";
 import config from "../config";
-import type { TetrominoNames } from "../../../config/tetromino";
 import type { Sprites } from "./main";
 import type Game from "../game";
+import { blocks } from "./swap";
+import type { TetrominoNames } from "../../../config/tetromino";
 
-export const blocks: {
-    [Property in TetrominoNames]: number[][]
-} = {
-    I: [[1, 1, 1, 1]],
-    O: [[1, 1], [1, 1]],
-    T: [[0, 1, 0], [1, 1, 1]],
-    S: [[0, 1, 1], [1, 1, 0]],
-    Z: [[1, 1, 0], [0, 1, 1]],
-    J: [[1, 0, 0], [1, 1, 1]],
-    L: [[0, 0, 1], [1, 1, 1]],
-}
-
-export default class SwapRenderer extends PIXI.Container {
+export default class NextRenderer extends PIXI.Container {
     readonly block_size = config.display.block_size / 1.5;
+
 
     readonly blocks: {
         name: TetrominoNames | null;
@@ -46,9 +36,9 @@ export default class SwapRenderer extends PIXI.Container {
             is_done: false,
             sprite: new PIXI.Sprite(),
         }
-   ];
+    ]
 
-   private __text: PIXI.Text;
+    private __text: PIXI.Text;
 
     constructor(app: PIXI.Application, type_of_sprite: Sprites, game: Game) {
         super();
@@ -57,7 +47,7 @@ export default class SwapRenderer extends PIXI.Container {
         this.__app = app;
         this.type_of_sprite = type_of_sprite;
         this.blocks = [];
-        this.position.set(app.screen.width / 2 - (config.display.width + config.display.side_width / 2), app.screen.height / 2 - (config.display.height - config.display.height / 1.675));
+        this.position.set(app.screen.width / 2 + (config.display.width / 1.5), app.screen.height / 2 - (config.display.height - config.display.height / 1.675));
         this.width = config.display.side_width * 1.5;
         this.height = config.display.side_width;
 
@@ -75,29 +65,32 @@ export default class SwapRenderer extends PIXI.Container {
             this.addChild(sprite);
         }
 
-        this.__text = new PIXI.Text("SWAP", {
-            fill: "#fff",
+        this.__text = new PIXI.Text("Next", {
             fontSize: 24,
+            fill: "#fff",
             fontWeight: "bold",
         });
 
-        this.__text.position.set(24, -32);
+        this.__text.position.set(
+            24,
+            -32
+        )
 
         this.addChild(this.__text);
     }
 
-    reset_positions(): void {
-        for (const s of this.__sprites) {
-            s.is_done = false;
+        reset_positions(): void {
+            for (const s of this.__sprites) {
+                s.is_done = false;
+            }
         }
-    } 
 
-    draw(): void {
-        if (!this.__game.swapped_tetromino) {
+        draw(): void {
+        if (!this.__game.next_tetromino) {
             return;
         }
 
-        const tetromino = this.__game.swapped_tetromino;
+        const tetromino = this.__game.next_tetromino;
 
         const name = tetromino.name;
 
@@ -156,5 +149,4 @@ export default class SwapRenderer extends PIXI.Container {
             }
         }
     }
-    
 }

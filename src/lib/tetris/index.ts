@@ -1,24 +1,31 @@
 import * as PIXI from "pixi.js";
 import Game from "./game";
+import tetris_events from "./events";
+import Sound from "../sound";
+import { get_gravity } from "./utils/formulas";
 
 (await PIXI.Assets.load(
 	"/spritesheet/data.json",
 )) as PIXI.Spritesheet;
 
+const points_table = {
+	1: 40,
+	2: 100,
+	3: 300,
+	4: 1200,
+}
+
 function init() {
-	let resize_timeout: number | undefined;
-	const resize_delay = 1000;
-	
+	PIXI.settings.RESOLUTION = window.devicePixelRatio || 1;
+
 	const tetris_app = new PIXI.Application({
 		autoDensity: true,
-		premultipliedAlpha: true,
 		backgroundAlpha: 0,
-		resizeTo: window,
-		antialias: true
+		resizeTo: document.getElementById("tetris-container")!
 	});
-	
+
 	// @ts-ignore
-	document.body.appendChild(tetris_app.view);
+	document.getElementById("tetris-container")!.appendChild(tetris_app.view);
 
 	const game = new Game(tetris_app, "blocky", "srs", {}); 
 
@@ -26,15 +33,6 @@ function init() {
 
 	let did_move_right = false;
 	let did_move_left = false;
-
-	window.addEventListener("resize", () => {
-		if (resize_timeout) {
-			clearTimeout(resize_timeout);
-		}
-
-		// Implement soon
-		resize_timeout = setTimeout(() => {}, resize_delay);
-	});
 
 	window.addEventListener("keyup", (event) => {
 		const key = event.key;
@@ -94,6 +92,78 @@ function init() {
 		} else if (key === game.keys.hold.type) {
 			game.keys.hold.press();
 		}
+	});
+
+	let lock_sound: undefined | Sound;
+	let hold_sound: undefined | Sound;
+
+	tetris_events.addEventListener("tetris:lock", () => {
+		if (lock_sound) {
+			lock_sound.play();
+		} else {
+			lock_sound = new Sound("/sfx/lock.mp3", new AudioContext());
+			lock_sound.load().then(() => {
+				lock_sound?.play();
+			});
+		}
+	});
+
+	tetris_events.addEventListener("tetris:hold", (data) => {
+		console.log(data);
+
+		if (hold_sound) {
+			hold_sound.play();
+		} else {
+			hold_sound = new Sound("/sfx/hold-sfx.mp3", new AudioContext());
+			hold_sound.load().then(() => {
+				hold_sound?.play();
+			});
+		}
+	});
+
+	let lines_cleared = 0;
+	let level = 1;
+	let tracker = 0;
+
+	tetris_events.addEventListener("tetris:clear", (data) => {
+		let  lines = data.detail.lines;
+
+		lines_cleared += lines;
+		tracker += lines;
+
+		if (tracker >= 10) {
+			level += 1;
+			tracker = 0;
+			document.getElementById("level")!.textContent = level.toString();
+			if (game.gravity) {
+				game.gravity = get_gravity(level, game.gravity);
+			}
+		}
+
+		console.log(lines_cleared, lines_cleared % 10);
+
+		let points = 0;
+
+		if (lines === 4) {
+			points = points_table[lines] * level;
+		} else {
+			while (lines > 0) {
+				if (lines > 4) {
+					points += points_table[4] * level;
+				} else {
+					points += points_table[lines as keyof typeof points_table] * level;
+				}
+				lines -= 4;
+			}
+		}
+
+		const curr_score = parseInt(document.getElementById("score")!.textContent!);
+		document.getElementById("score")!.textContent = (curr_score + points).toString();
+	});
+
+	tetris_events.addEventListener("tetris:game_over", () => {
+		tetris_app.stop();
+		tetris_app.destroy(true);
 	});
 }
 

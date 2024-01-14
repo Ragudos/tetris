@@ -1,5 +1,5 @@
 import tetrisEvents from "../../events/tetris-events";
-import Sound from "./sound";
+import Sound from "../../../sound";
 
 let drop_sound: undefined | Sound;
 

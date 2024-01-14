@@ -1,5 +1,6 @@
 import type { XY } from "../xy";
 import config from "./config";
+import events from "./events";
 import type Tetromino from "./tetromino";
 
 class Screen {
@@ -292,7 +293,7 @@ class Screen {
 		}
 
 		if (lines > 0) {
-			console.log(`Cleared ${lines} lines.`);
+			events.$emit("tetris:clear", { lines });
 		}
 	}
 }

@@ -14,6 +14,8 @@ import Tetromino from "./tetromino";
 import UserSettings from "./user-settings";
 import MainRenderer, { type Sprites } from "./renderers/main";
 import SwapRenderer from "./renderers/swap";
+import NextRenderer from "./renderers/next";
+import tetrisEvents from "./events";
 
 export type GameStates = "running" | "paused" | "gameover" | "not_started";
 
@@ -21,6 +23,7 @@ export default class Game {
 	private __app: PIXI.Application;
 	private __renderer: MainRenderer;
 	private __swap_renderer: SwapRenderer;
+	private __next_renderer: NextRenderer;
 
 	private __bag: TetrominoBag;
 	private __current_tetromino: Tetromino;
@@ -53,6 +56,7 @@ export default class Game {
 		this.__app = app;
 		this.__renderer = new MainRenderer(app, sprite_style);
 		this.__swap_renderer = new SwapRenderer(app, sprite_style, this);
+		this.__next_renderer = new NextRenderer(app, sprite_style, this);
 		this.__bag = new TetrominoBag([
 			new Tetromino("I", kick_data, new XY(0, 0), 0),
 			new Tetromino("J", kick_data, new XY(0, 0), 0),
@@ -110,6 +114,7 @@ export default class Game {
 		this.__app.ticker.add(this.__update, this);
 		this.__app.stage.addChild(this.__renderer);
 		this.__app.stage.addChild(this.__swap_renderer);
+		this.__app.stage.addChild(this.__next_renderer);
 		this.recalculate_ghost_y();
 	}
 
@@ -155,6 +160,8 @@ export default class Game {
 
 		this.__current_tetromino.position.x -= 1;
 		this.recalculate_ghost_y();
+		this.__lock.reset_lock_if_possible();
+		this.__lock.lock_if_possible();
 	}
 
 	private __move_right(): void {
@@ -174,9 +181,11 @@ export default class Game {
 
 		this.__current_tetromino.position.x += 1;
 		this.recalculate_ghost_y();
+		this.__lock.reset_lock_if_possible();
+		this.__lock.lock_if_possible();
 	}
 
-	private __srs_rotation(dir: ROTATION_DIR): void {
+	private __srs_rotation(dir: ROTATION_DIR): boolean {
 		const tmp_shape = this.__current_tetromino.clone_shape();
 		const add_8 = this.__current_tetromino.name === "I" ? 8 : 0;
 
@@ -244,12 +253,14 @@ export default class Game {
 					this.__current_tetromino.position.y = new_pos_y;
 					this.__current_tetromino.rotate(dir);
 
-					break;
+					return true;
 				}
 
-				return;
+				return false;
 			}
 		}
+
+		return false
 	}
 
 	private __rotate(dir: ROTATION_DIR): void {
@@ -261,13 +272,19 @@ export default class Game {
 			return;
 		}
 
+		let did_rotate = false;
+
 		switch (this.__current_tetromino.kick_data) {
 			case "srs":
-				this.__srs_rotation(dir);
+				did_rotate = this.__srs_rotation(dir);
 				break;
 		}
 
-		this.recalculate_ghost_y();
+		if (did_rotate) {
+			this.recalculate_ghost_y();
+			this.__lock.reset_lock_if_possible();
+			this.__lock.lock_if_possible();
+		}
 	}
 
 	private __update_time(dt: number): void {
@@ -295,6 +312,7 @@ export default class Game {
 			this.__current_tetromino = this.__next_tetromino;
 
 			this.__next_tetromino = this.__bag.tetromino;
+			this.__next_renderer.reset_positions();
 		} else {
 			const tmp = this.__swapped_tetromino;
 			this.__swapped_tetromino = this.__current_tetromino;
@@ -311,6 +329,9 @@ export default class Game {
 
         this.recalculate_ghost_y();
 		this.__swap_renderer.reset_positions();
+		tetrisEvents.$emit("tetris:hold", {
+			swapped_block_name: this.__swapped_tetromino.name,
+		})
 
         if (!UserSettings.get_instance().hold.infinite) {
             this.__can_swap = false;
@@ -390,26 +411,18 @@ export default class Game {
 
 		if (this.__keys.move_left.is_triggered()) {
 			this.__move_left();
-			this.__lock.reset_lock_if_possible();
-			this.__lock.lock_if_possible();
 		}
 
 		if (this.__keys.move_right.is_triggered()) {
 			this.__move_right();
-			this.__lock.reset_lock_if_possible();
-			this.__lock.lock_if_possible();
 		}
 
 		if (this.__keys.rotate_left.is_triggered()) {
 			this.__rotate(-1);
-			this.__lock.reset_lock_if_possible();
-			this.__lock.lock_if_possible();
 		}
 
 		if (this.__keys.rotate_right.is_triggered()) {
 			this.__rotate(1);
-			this.__lock.reset_lock_if_possible();
-			this.__lock.lock_if_possible();
 		}
 
 		if (this.__keys.hold.is_triggered()) {
@@ -433,6 +446,7 @@ export default class Game {
 		this.__renderer.update_tetromino(this.__current_tetromino);
 
 		this.__swap_renderer.draw();
+		this.__next_renderer.draw();
 
 		if (this.__lock.is_locked) {
 			this.__renderer.flicker_block(dt, this.__current_tetromino);
@@ -511,12 +525,14 @@ export default class Game {
 		this.__current_tetromino = this.__next_tetromino;
 		this.__next_tetromino = this.__bag.tetromino;
 
+		this.__next_renderer.reset_positions();
+
 		this.__can_swap = true;
 	}
 
 	lock_current_block(): void {
         if (
-            this.__screen.is_colliding_up(this.__current_tetromino.position, this.__current_tetromino.shape, 2)
+            this.__screen.is_colliding_up(this.__current_tetromino.position, this.__current_tetromino.shape, 0)
             && this.__screen.is_colliding_down(this.__current_tetromino.position, this.__current_tetromino.shape, 1)
         ) {
             this.gameover();
@@ -531,6 +547,7 @@ export default class Game {
 		this.__screen.clear_rows();
 		this.recalculate_ghost_y();
 		this.__time_storage.time_since_last_drop = 0;
+		tetrisEvents.$emit("tetris:lock", {});
 	}
 
 	get renderer() {
@@ -568,4 +585,12 @@ export default class Game {
     get level() {
         return this.__level;
     }
+
+	set gravity(new_gravity: number) {
+		this.__drop.gravity = new_gravity;
+	}
+
+	get gravity(): number | null {
+		return this.__drop.gravity;
+	}
 }

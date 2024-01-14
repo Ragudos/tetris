@@ -2,7 +2,7 @@ import config from "../config";
 
 export function get_gravity(level: number, current_gravity: number): number {
 	return Math.round(
-		current_gravity - level * config.gravity.decrement_per_level,
+		current_gravity - level * config.gravity.decrement_per_level *  current_gravity,
 	);
 }
 
