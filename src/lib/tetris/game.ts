@@ -364,7 +364,7 @@ export default class Game {
 					this.__screen.is_colliding_up(
 						this.__current_tetromino.position,
 						this.__current_tetromino.shape,
-						2,
+						0,
 					)
 				) {
 					this.gameover();

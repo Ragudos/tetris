@@ -3,7 +3,7 @@ import { XY } from "../xy";
 export default {
 	display: {
 		width: 200,
-		side_width: 100,
+		side_width: 75,
 		height: 400,
 		block_size: 20,
 	},

@@ -4,6 +4,18 @@ import type { TetrominoNames } from "../../../config/tetromino";
 import type { Sprites } from "./main";
 import type Game from "../game";
 
+const blocks: {
+    [Property in TetrominoNames]: number[][]
+} = {
+    I: [[1, 1, 1, 1]],
+    O: [[1, 1], [1, 1]],
+    T: [[0, 1, 0], [1, 1, 1]],
+    S: [[0, 1, 1], [1, 1, 0]],
+    Z: [[1, 1, 0], [0, 1, 1]],
+    J: [[1, 0, 0], [1, 1, 1]],
+    L: [[0, 0, 1], [1, 1, 1]],
+}
+
 export default class SwapRenderer extends PIXI.Container {
     readonly block_size = config.display.block_size / 1.5;
 
@@ -44,14 +56,14 @@ export default class SwapRenderer extends PIXI.Container {
         this.type_of_sprite = type_of_sprite;
         this.blocks = [];
         this.position.set(app.screen.width / 2 - (config.display.width + config.display.side_width / 2), app.screen.height / 2 - (config.display.height - config.display.height / 1.675));
-        this.width = config.display.side_width;
+        this.width = config.display.side_width * 1.5;
         this.height = config.display.side_width;
 
         this.__graphics = new PIXI.Graphics();
         this.addChild(this.__graphics);
 
         this.__graphics.beginFill("#000");
-        this.__graphics.drawRect(0, 0, config.display.side_width, config.display.side_width);
+        this.__graphics.drawRect(0, 0, config.display.side_width * 1.5, config.display.side_width);
 
         for (const s of this.__sprites) {
             const sprite =  s.sprite;
@@ -85,9 +97,9 @@ export default class SwapRenderer extends PIXI.Container {
 
         let is_finished = false;
 
-        for (let y = 0; y < tetromino.shape.length; ++y) {
-            for (let x = 0; x < tetromino.shape[y]!.length; ++x) {
-                const item = tetromino.shape[y]![x];
+        for (let y = 0; y < blocks[tetromino.name].length; ++y) {
+            for (let x = 0; x < blocks[tetromino.name]![y]!.length; ++x) {
+                const item = blocks[tetromino.name][y]![x];
 
                 if (!item) {
                     continue;
@@ -107,10 +119,22 @@ export default class SwapRenderer extends PIXI.Container {
                     break;
                 }
 
-                sprite.sprite.position.set(
-                    x * sprite.sprite.width,
-                    y * sprite.sprite.height
-                );
+                if (tetromino.name === "I") {
+                    sprite.sprite.position.set(
+                        sprite.sprite.width * x + config.display.side_width / 2 - sprite.sprite.width,
+                        config.display.side_width / 2 - sprite.sprite.height / 2
+                    );
+                } else if (tetromino.name === "O") {
+                    sprite.sprite.position.set(
+                        sprite.sprite.width * x + config.display.side_width * 1.5 / 2 - sprite.sprite.width,
+                        sprite.sprite.height * y + config.display.side_width / 2 - sprite.sprite.height
+                    );
+                } else {
+                    sprite.sprite.position.set(
+                        sprite.sprite.width * x + config.display.side_width * 1.25 / 2 - sprite.sprite.width,
+                        sprite.sprite.height * y  + config.display.side_width / 2 - sprite.sprite.height,
+                    );
+                }
 
                 sprite.is_done = true;
             }
