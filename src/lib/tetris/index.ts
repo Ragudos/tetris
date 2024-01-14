@@ -133,7 +133,7 @@ function init() {
 
 		if (tracker >= 10) {
 			level += 1;
-			tracker = 0;
+			tracker = tracker - 10;
 			document.getElementById("level")!.textContent = level.toString();
 			if (game.gravity) {
 				game.gravity = get_gravity(level, game.gravity);
