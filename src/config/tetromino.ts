@@ -98,7 +98,7 @@ export const tetromino_default_rotations: {
 			[0, 1, 1],
 			[0, 0, 0],
 		],
-	}
+	},
 };
 
 /**

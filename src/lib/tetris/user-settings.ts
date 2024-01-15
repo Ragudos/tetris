@@ -10,7 +10,7 @@ export default class UserSettings {
 		infinite?: boolean;
 	} = {
 		enabled: true,
-		infinite: false
+		infinite: false,
 	};
 	lock: {
 		enabled: boolean;
@@ -19,13 +19,13 @@ export default class UserSettings {
 	} = {
 		enabled: true,
 		delay: config.lock.delay,
-		max_resets: config.lock.max_resets
+		max_resets: config.lock.max_resets,
 	};
-	kick: KickData  = "srs";
+	kick: KickData = "srs";
 	gravity: {
 		type: keyof typeof config.gravity.initial;
 	} = {
-		type: "relaxed"
+		type: "relaxed",
 	};
 	sprite: Sprites = "shiny";
 
@@ -67,7 +67,7 @@ export default class UserSettings {
 					if (is_object(value)) {
 						value = {
 							...value,
-							...parsed_settings[key]
+							...parsed_settings[key],
 						};
 
 						// @ts-ignore
@@ -81,7 +81,10 @@ export default class UserSettings {
 		}
 	}
 
-	update<T extends keyof typeof UserSettings.__instance>(key: T, value: Partial<typeof UserSettings.__instance[T]>): void {
+	update<T extends keyof typeof UserSettings.__instance>(
+		key: T,
+		value: Partial<(typeof UserSettings.__instance)[T]>,
+	): void {
 		if (key in UserSettings.__instance) {
 			if (key === "lock") {
 				// @ts-ignore
@@ -97,12 +100,12 @@ export default class UserSettings {
 					this[key] = {
 						// @ts-ignore
 						...this[key],
-						...value
+						...value,
 					};
 				}
 			} else {
 				// @ts-ignore
-				this[key] = value
+				this[key] = value;
 			}
 			localStorage.setItem(UserSettings.key, JSON.stringify(this));
 		}

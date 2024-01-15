@@ -99,7 +99,7 @@ input,
 textarea {
 	border: none;
 	background: transparent;
-	color: hsl(var(--text))
+	color: hsl(var(--text));
 }
 
 button,

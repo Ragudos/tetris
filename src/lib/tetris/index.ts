@@ -5,38 +5,38 @@ import Sound from "../sound";
 import { get_gravity } from "./utils/formulas";
 import UserSettings from "./user-settings";
 
-(await PIXI.Assets.load(
-	"/spritesheet/data.json",
-)) as PIXI.Spritesheet;
+(await PIXI.Assets.load("/spritesheet/data.json")) as PIXI.Spritesheet;
 
 const points_table = {
 	1: 40,
 	2: 100,
 	3: 300,
 	4: 1200,
-}
+};
 
 PIXI.settings.RESOLUTION = window.devicePixelRatio || 1;
 
 function init() {
 	const saved_highscore = localStorage.getItem("tetris-highscore");
-	
+
 	if (saved_highscore) {
 		const parsed_highscore = JSON.parse(saved_highscore);
 
 		if (!isNaN(parsed_highscore.level)) {
-			document.getElementById("highest-level")!.textContent = parsed_highscore.level;
+			document.getElementById("highest-level")!.textContent =
+				parsed_highscore.level;
 		}
 
 		if (!isNaN(parsed_highscore.score)) {
-			document.getElementById("highest-score")!.textContent = parsed_highscore.score
+			document.getElementById("highest-score")!.textContent =
+				parsed_highscore.score;
 		}
 	}
 
 	document.getElementById("game-over")!.setAttribute("hidden", "true");
 	document.getElementById("score")!.textContent = "0";
-	document.getElementById("level")!.textContent = "1";	
-	
+	document.getElementById("level")!.textContent = "1";
+
 	const tetris_app = new PIXI.Application({
 		autoDensity: true,
 		backgroundAlpha: 0,
@@ -48,7 +48,12 @@ function init() {
 	// @ts-ignore
 	document.getElementById("tetris-container")!.appendChild(tetris_app.view);
 
-	let game: null | Game = new Game(tetris_app, UserSettings.get_instance().sprite, UserSettings.get_instance().kick, {}); 
+	let game: null | Game = new Game(
+		tetris_app,
+		UserSettings.get_instance().sprite,
+		UserSettings.get_instance().kick,
+		{},
+	);
 
 	game.start();
 
@@ -60,8 +65,8 @@ function init() {
 	const hold_function = hold();
 
 	tetris_app.view?.addEventListener?.("focusout", () => {
-		console.log("outfocus")
-	})
+		console.log("outfocus");
+	});
 
 	window.addEventListener("keydown", keydown_handler);
 	window.addEventListener("keyup", keyup_handler);
@@ -145,7 +150,7 @@ function init() {
 			game.keys.hold.release();
 		}
 	}
-	
+
 	function lock() {
 		let lock_sound: undefined | Sound;
 
@@ -158,7 +163,7 @@ function init() {
 					lock_sound?.play();
 				});
 			}
-		}
+		};
 	}
 
 	function hold() {
@@ -173,7 +178,7 @@ function init() {
 					hold_sound?.play(0.5);
 				});
 			}
-		}
+		};
 	}
 
 	function line_clear() {
@@ -184,13 +189,13 @@ function init() {
 		let clear_sound: undefined | Sound;
 		let level_sound: undefined | Sound;
 
-		return function(data: TetrisEventsMap["tetris:clear"]) {
+		return function (data: TetrisEventsMap["tetris:clear"]) {
 			if (!game) {
 				return;
 			}
 
 			if (clear_sound) {
-				clear_sound.play()
+				clear_sound.play();
 			} else {
 				clear_sound = new Sound("/sfx/clear.mp3", new AudioContext());
 				clear_sound.load().then(() => {
@@ -209,14 +214,18 @@ function init() {
 				if (level_sound) {
 					level_sound.play();
 				} else {
-					level_sound = new Sound("/sfx/Level.wav", new AudioContext());
+					level_sound = new Sound(
+						"/sfx/Level.wav",
+						new AudioContext(),
+					);
 					level_sound.load().then(() => {
 						level_sound?.play();
 					});
 				}
 
 				tracker = tracker - 10;
-				document.getElementById("level")!.textContent = level.toString();
+				document.getElementById("level")!.textContent =
+					level.toString();
 				if (game.gravity) {
 					game.gravity = get_gravity(level, game.gravity);
 				}
@@ -231,15 +240,21 @@ function init() {
 					if (lines > 4) {
 						points += points_table[4] * level;
 					} else {
-						points += points_table[lines as keyof typeof points_table] * level;
+						points +=
+							points_table[lines as keyof typeof points_table] *
+							level;
 					}
 					lines -= 4;
 				}
 			}
 
-			const curr_score = parseInt(document.getElementById("score")!.textContent!);
-			document.getElementById("score")!.textContent = (curr_score + points).toString();
-		}
+			const curr_score = parseInt(
+				document.getElementById("score")!.textContent!,
+			);
+			document.getElementById("score")!.textContent = (
+				curr_score + points
+			).toString();
+		};
 	}
 
 	function cleanup() {
@@ -247,28 +262,42 @@ function init() {
 			const parsed_highscore = JSON.parse(saved_highscore);
 
 			if (!isNaN(parsed_highscore.level)) {
-				const curr_level = parseInt(document.getElementById("level")!.textContent!);
+				const curr_level = parseInt(
+					document.getElementById("level")!.textContent!,
+				);
 				if (parsed_highscore.level < curr_level) {
 					parsed_highscore.level = curr_level;
 				}
 			}
 
 			if (!isNaN(parsed_highscore.score)) {
-				const curr_score = parseInt(document.getElementById("score")!.textContent!);
+				const curr_score = parseInt(
+					document.getElementById("score")!.textContent!,
+				);
 				if (parsed_highscore.score < curr_score) {
 					parsed_highscore.score = curr_score;
 				}
 			}
 
-			localStorage.setItem("tetris-highscore", JSON.stringify(parsed_highscore));
+			localStorage.setItem(
+				"tetris-highscore",
+				JSON.stringify(parsed_highscore),
+			);
 		} else {
-			const curr_level = parseInt(document.getElementById("level")!.textContent!);
-			const curr_score = parseInt(document.getElementById("score")!.textContent!);
+			const curr_level = parseInt(
+				document.getElementById("level")!.textContent!,
+			);
+			const curr_score = parseInt(
+				document.getElementById("score")!.textContent!,
+			);
 
-			localStorage.setItem("tetris-highscore", JSON.stringify({
-				level: curr_level,
-				score: curr_score,
-			}));
+			localStorage.setItem(
+				"tetris-highscore",
+				JSON.stringify({
+					level: curr_level,
+					score: curr_score,
+				}),
+			);
 		}
 
 		document.getElementById("tetris-container")!.innerHTML = "";

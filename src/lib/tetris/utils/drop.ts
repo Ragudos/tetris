@@ -4,9 +4,12 @@ import UserSettings from "../user-settings";
 import { get_gravity } from "./formulas";
 
 export default class Drop {
-	private __gravity: number | null = config.gravity.initial[UserSettings.get_instance().gravity.type];
+	private __gravity: number | null =
+		config.gravity.initial[UserSettings.get_instance().gravity.type];
 	private __gravity_limit: number = 0.2;
-	private __soft_drop_gravity: number = Math.round(this.__gravity as number * 0.0075);
+	private __soft_drop_gravity: number = Math.round(
+		(this.__gravity as number) * 0.0075,
+	);
 
 	private __game: Game;
 
@@ -15,25 +18,25 @@ export default class Drop {
 	constructor(game: Game) {
 		this.__game = game;
 
-        UserSettings.observer.subscribe((settings) => {
-            if (settings.gravity.type in config.gravity.initial) {
-                const grav = config.gravity.initial[settings.gravity.type];
+		UserSettings.observer.subscribe((settings) => {
+			if (settings.gravity.type in config.gravity.initial) {
+				const grav = config.gravity.initial[settings.gravity.type];
 
-                if (!grav) {
-                    this.__gravity = grav;
-                } else {
-                    this.__gravity = get_gravity(this.__game.level, grav);
-                }
+				if (!grav) {
+					this.__gravity = grav;
+				} else {
+					this.__gravity = get_gravity(this.__game.level, grav);
+				}
 
-                this.__recalculate_soft_drop_gravity
-            }
-        });
+				this.__recalculate_soft_drop_gravity;
+			}
+		});
 	}
 
-    /**
-     * 
-     * @param should_lock Whether or not to lock the block after hard dropping. Useful for static gravity
-     */
+	/**
+	 *
+	 * @param should_lock Whether or not to lock the block after hard dropping. Useful for static gravity
+	 */
 	hard_drop(should_lock: boolean = true) {
 		this.is_hard_dropping = should_lock;
 
@@ -53,10 +56,10 @@ export default class Drop {
 		}
 
 		block.position.y = tmp_pos.y;
-        if (should_lock) {
-            this.is_hard_dropping = false;
-            this.__game.lock_current_block();
-        }
+		if (should_lock) {
+			this.is_hard_dropping = false;
+			this.__game.lock_current_block();
+		}
 	}
 
 	soft_drop(): boolean {
@@ -64,9 +67,9 @@ export default class Drop {
 	}
 
 	private __recalculate_soft_drop_gravity(): void {
-        if (!this.__gravity) {
-            return;
-        }
+		if (!this.__gravity) {
+			return;
+		}
 
 		let divider;
 

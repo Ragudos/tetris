@@ -52,7 +52,7 @@ export default class Lock {
 				1,
 			)
 		) {
-			if (UserSettings.get_instance().lock.enabled){
+			if (UserSettings.get_instance().lock.enabled) {
 				this.start_locking();
 			} else {
 				this.__game.lock_current_block();
@@ -65,6 +65,8 @@ export default class Lock {
 	}
 
 	get can_reset(): boolean {
-		return this.__num_of_resets < UserSettings.get_instance().lock.max_resets;
+		return (
+			this.__num_of_resets < UserSettings.get_instance().lock.max_resets
+		);
 	}
 }

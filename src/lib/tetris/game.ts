@@ -46,7 +46,7 @@ export default class Game {
 
 	public ghost_y: number = 18;
 
-    private __level: number = 1;
+	private __level: number = 1;
 
 	constructor(
 		app: PIXI.Application,
@@ -123,7 +123,7 @@ export default class Game {
 		this.__renderer.reset_flicker();
 		this.__renderer.brighten_block();
 		this.state = "gameover";
-		console.log("hi")
+		console.log("hi");
 		events.$emit("tetris:gameover", {});
 	}
 
@@ -266,7 +266,7 @@ export default class Game {
 			}
 		}
 
-		return false
+		return false;
 	}
 
 	private __rotate(dir: ROTATION_DIR): void {
@@ -335,17 +335,17 @@ export default class Game {
 
 		this.__renderer.reset_flicker();
 		this.__renderer.brighten_block();
-        this.recalculate_ghost_y();
+		this.recalculate_ghost_y();
 		this.__swap_renderer.reset_positions();
 		tetrisEvents.$emit("tetris:hold", {
 			swapped_block_name: this.__swapped_tetromino.name,
-		})
+		});
 
-        if (!UserSettings.get_instance().hold.infinite) {
-            this.__can_swap = false;
-        }
+		if (!UserSettings.get_instance().hold.infinite) {
+			this.__can_swap = false;
+		}
 	}
- 
+
 	private __update_tetromino(_dt: number): void {
 		// Let the hard drop finish
 		if (this.__drop.is_hard_dropping) {
@@ -359,13 +359,13 @@ export default class Game {
 		}
 
 		if (!this.__lock.is_locked && this.__drop.gravity !== null) {
-            // If zero or null, means we are using static gravity
-            // so we place a tetromino at the floor instantly
-            if (!this.__drop.gravity) {
-                this.__drop.hard_drop(false);
-                this.__lock.start_locking();
-            } else {
-                if (this.__drop.soft_drop()) {
+			// If zero or null, means we are using static gravity
+			// so we place a tetromino at the floor instantly
+			if (!this.__drop.gravity) {
+				this.__drop.hard_drop(false);
+				this.__lock.start_locking();
+			} else {
+				if (this.__drop.soft_drop()) {
 					if (
 						this.__time_storage.time_since_last_drop >=
 						this.__drop.soft_drop_gravity
@@ -377,8 +377,8 @@ export default class Game {
 					this.__drop.gravity
 				) {
 					this.__move_down();
-				}           
-            }
+				}
+			}
 		} else if (!this.__lock.is_locked && this.__drop.gravity === null) {
 			if (this.__drop.soft_drop()) {
 				if (
@@ -455,9 +455,9 @@ export default class Game {
 	}
 
 	recalculate_ghost_y(): void {
-        if (!UserSettings.get_instance().ghost_piece) {
-            return;
-        }
+		if (!UserSettings.get_instance().ghost_piece) {
+			return;
+		}
 
 		const tmp_pos = this.__current_tetromino.position.clone();
 
@@ -478,63 +478,116 @@ export default class Game {
 		this.__next_tetromino.position.x = 4;
 		this.__next_tetromino.position.y = 0;
 
-		if (this.__screen.is_colliding_down(
-			this.__next_tetromino.position,
-			this.__next_tetromino.shape,
-			1
-		) && this.__screen.is_colliding_up(
-			this.__next_tetromino.position,
-			this.__next_tetromino.shape,
-			0
-		)) {
+		if (
+			this.__screen.is_colliding_down(
+				this.__current_tetromino.position,
+				this.__current_tetromino.shape,
+				1
+			) &&
+			this.__screen.is_colliding_up(
+				this.__current_tetromino.position,
+				this.__current_tetromino.shape,
+				0
+			) && this.__current_tetromino.position.x === 0
+		) {
 			this.gameover();
 			return;
 		}
 
-        if (
-            this.__screen.is_colliding_up(this.__next_tetromino.position, this.__next_tetromino.shape, 0)
-            || this.__screen.is_colliding_down(this.__next_tetromino.position, this.__next_tetromino.shape, 0)
-        ) {
-            if (UserSettings.get_instance().kick === "none") {
-                this.__next_tetromino.position.x = 0;
-                this.gameover();
-                return;
-            } else {
-                let tmp_pos = this.__next_tetromino.position.clone();
-                let did_try_right = false;
-                let did_try_left = false;
+		if (
+			this.__screen.is_colliding_down(
+				this.__next_tetromino.position,
+				this.__next_tetromino.shape,
+				1,
+			) &&
+			this.__screen.is_colliding_up(
+				this.__next_tetromino.position,
+				this.__next_tetromino.shape,
+				0,
+			)
+		) {
+			this.gameover();
+			return;
+		}
 
-                while (
-                    !this.__screen.is_colliding_up(tmp_pos, this.__next_tetromino.shape, 0)
-                    && !this.__screen.is_colliding_down(tmp_pos, this.__next_tetromino.shape, 0)
-                ) {
-                    if (!did_try_right) {
-                        tmp_pos.x += 1;
+		if (
+			this.__screen.is_colliding_up(
+				this.__next_tetromino.position,
+				this.__next_tetromino.shape,
+				0,
+			) ||
+			this.__screen.is_colliding_down(
+				this.__next_tetromino.position,
+				this.__next_tetromino.shape,
+				0,
+			)
+		) {
+			if (UserSettings.get_instance().kick === "none") {
+				this.__next_tetromino.position.x = 0;
+				this.gameover();
+				return;
+			} else {
+				let tmp_pos = this.__next_tetromino.position.clone();
+				let did_try_right = false;
+				let did_try_left = false;
 
-                        if (this.__screen.is_colliding_up(tmp_pos, this.__next_tetromino.shape, 0)
-                            && this.__screen.is_colliding_down(tmp_pos, this.__next_tetromino.shape, 0)
-                        ) {
-                            did_try_right = true;
-                            tmp_pos.x = 3;
-                        }
-                    } else if (!did_try_left) {
-                        tmp_pos.x -= 1;
+				while (
+					!this.__screen.is_colliding_up(
+						tmp_pos,
+						this.__next_tetromino.shape,
+						0,
+					) &&
+					!this.__screen.is_colliding_down(
+						tmp_pos,
+						this.__next_tetromino.shape,
+						0,
+					)
+				) {
+					if (!did_try_right) {
+						tmp_pos.x += 1;
 
-                        if (this.__screen.is_colliding_up(tmp_pos, this.__next_tetromino.shape, 0)
-                            && this.__screen.is_colliding_down(tmp_pos, this.__next_tetromino.shape, 0)
-                        ) {
-                            did_try_left = true;
-                        }
-                    } else {
-                        this.__next_tetromino.position.x = 0;
-                        this.gameover();
-                        return;
-                    }
-                }
+						if (
+							this.__screen.is_colliding_up(
+								tmp_pos,
+								this.__next_tetromino.shape,
+								0,
+							) &&
+							this.__screen.is_colliding_down(
+								tmp_pos,
+								this.__next_tetromino.shape,
+								0,
+							)
+						) {
+							did_try_right = true;
+							tmp_pos.x = 3;
+						}
+					} else if (!did_try_left) {
+						tmp_pos.x -= 1;
 
-                this.__next_tetromino.position.x = tmp_pos.x;
-            }
-        }
+						if (
+							this.__screen.is_colliding_up(
+								tmp_pos,
+								this.__next_tetromino.shape,
+								0,
+							) &&
+							this.__screen.is_colliding_down(
+								tmp_pos,
+								this.__next_tetromino.shape,
+								0,
+							)
+						) {
+							did_try_left = true;
+						}
+					} else {
+						this.__next_tetromino.position.x = 0;
+						this.gameover();
+						return;
+					}
+				}
+
+				this.__next_tetromino.position.x = tmp_pos.x;
+			}
+		}
 
 		this.__current_tetromino = this.__next_tetromino;
 		this.__next_tetromino = this.__bag.tetromino;
@@ -546,10 +599,10 @@ export default class Game {
 
 	lock_current_block(): void {
 		this.__screen.occupy_grid(this.__current_tetromino);
+		this.spawn_new_tetromino();
 		this.__lock.stop_locking();
 		this.__renderer.reset_flicker();
 		this.__renderer.brighten_block();
-		this.spawn_new_tetromino();
 		this.__screen.clear_rows();
 		this.recalculate_ghost_y();
 		this.__time_storage.time_since_last_drop = 0;
@@ -596,9 +649,9 @@ export default class Game {
 		return this.__lock;
 	}
 
-    get level() {
-        return this.__level;
-    }
+	get level() {
+		return this.__level;
+	}
 
 	set gravity(new_gravity: number) {
 		this.__drop.gravity = new_gravity;

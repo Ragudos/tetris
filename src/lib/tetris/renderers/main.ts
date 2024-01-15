@@ -2,7 +2,10 @@ import * as PIXI from "pixi.js";
 import config from "../config";
 import type Tetromino from "../tetromino";
 import type Screen from "../screen";
-import type { TetrominoNames, tetromino_colors } from "../../../config/tetromino";
+import type {
+	TetrominoNames,
+	tetromino_colors,
+} from "../../../config/tetromino";
 import UserSettings from "../user-settings";
 import { get_time_ease_out } from "../utils/formulas";
 
@@ -28,7 +31,10 @@ export default class MainRenderer extends PIXI.Container {
 		this.__app = app;
 		this.type_of_sprite = type_of_sprite;
 		this.blocks = [];
-		this.position.set(app.screen.width / 2 - config.display.width / 2, app.screen.height / 2 - config.display.height / 2);
+		this.position.set(
+			app.screen.width / 2 - config.display.width / 2,
+			app.screen.height / 2 - config.display.height / 2,
+		);
 		this.block_size = config.display.width / this.__columns;
 
 		for (let y = 0; y < this.__rows; ++y) {
@@ -110,7 +116,9 @@ export default class MainRenderer extends PIXI.Container {
 		// The fraction was acquired from
 		/** @see https://javascript.info/js-animation */
 		const fraction =
-			1 - (dt - this.__time_since_flicker) / (UserSettings.get_instance().lock.delay * 2);
+			1 -
+			(dt - this.__time_since_flicker) /
+				(UserSettings.get_instance().lock.delay * 2);
 		const new_alpha = get_time_ease_out(fraction);
 
 		for (let y = 0; y < tetromino.shape.length; ++y) {
