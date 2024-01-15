@@ -2,8 +2,8 @@ import * as PIXI from "pixi.js";
 import config from "../config";
 import type { Sprites } from "./main";
 import type Game from "../game";
-import { blocks } from "./swap";
 import type { TetrominoNames } from "../../../config/tetromino";
+import { blocks } from "../../consts";
 
 export default class NextRenderer extends PIXI.Container {
     readonly block_size = config.display.block_size / 1.5;

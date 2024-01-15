@@ -14,7 +14,7 @@
 			"spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 42 },
 			"sourceSize": { "w": 192, "h": 42 }
 		},
-		"basic_o": {
+		"shiny_o": {
 			"frame": {
 				"x": 0,
 				"y": 0,
@@ -26,7 +26,7 @@
 			"spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 42 },
 			"sourceSize": { "w": 192, "h": 42 }
 		},
-		"basic_z": {
+		"shiny_z": {
 			"frame": {
 				"x": 22,
 				"y": 0,
@@ -38,7 +38,7 @@
 			"spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 42 },
 			"sourceSize": { "w": 192, "h": 42 }
 		},
-		"basic_s": {
+		"shiny_s": {
 			"frame": {
 				"x": 44,
 				"y": 0,
@@ -50,7 +50,7 @@
 			"spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 42 },
 			"sourceSize": { "w": 192, "h": 42 }
 		},
-		"basic_i": {
+		"shiny_i": {
 			"frame": {
 				"x": 66,
 				"y": 0,
@@ -62,7 +62,7 @@
 			"spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 42 },
 			"sourceSize": { "w": 192, "h": 42 }
 		},
-		"basic_l": {
+		"shiny_l": {
 			"frame": {
 				"x": 88,
 				"y": 0,
@@ -74,7 +74,7 @@
 			"spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 42 },
 			"sourceSize": { "w": 192, "h": 42 }
 		},
-		"basic_j": {
+		"shiny_j": {
 			"frame": {
 				"x": 110,
 				"y": 0,
@@ -86,7 +86,7 @@
 			"spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 42 },
 			"sourceSize": { "w": 192, "h": 42 }
 		},
-		"basic_t": {
+		"shiny_t": {
 			"frame": {
 				"x": 132,
 				"y": 0,
@@ -98,7 +98,7 @@
 			"spriteSourceSize": { "x": 0, "y": 0, "w": 192, "h": 42 },
 			"sourceSize": { "w": 192, "h": 42 }
 		},
-		"basic_ghost": {
+		"shiny_ghost": {
 			"frame": {
 				"x": 154,
 				"y": 0,

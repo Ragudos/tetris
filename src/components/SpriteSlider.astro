@@ -1,0 +1,164 @@
+---
+import type { Sprites } from "../lib/tetris/renderers/main";
+
+const sprite_types: Sprites[] = ["shiny", "blocky"];
+---
+<div class="sprite-slider-container">
+    <select id="sprite-select">
+        {
+            sprite_types.map((type) => {
+                return <option value={type}>{type.slice(0, 1).toUpperCase()}{type.slice(1, type.length)}</option>;
+            })
+        }
+    </select>
+    <div id="sprite-slider">
+    </div>
+</div>
+<style>
+    #sprite-select {
+        margin-bottom: 1rem;
+    }
+    #sprite-slider {
+        width: 70px;
+        height: 50px;
+        background-color: #000000;
+    }
+</style>
+<script>
+    import * as PIXI from "pixi.js";
+    import UserSettings from "../lib/tetris/user-settings";
+    import type { TetrominoNames } from "../config/tetromino";
+    import { blocks } from "../lib/consts";
+
+    const width = 60;
+    const el = document.getElementById('sprite-select') as HTMLSelectElement;
+
+    let sprite_type = UserSettings.get_instance().sprite;
+    let current_name: TetrominoNames = "O";
+
+    el.value = sprite_type;
+
+    const app = new PIXI.Application({
+        backgroundColor: 0x212121,
+        resolution: window.devicePixelRatio || 1,
+        resizeTo: document.getElementById('sprite-slider')!
+    });
+
+    el.addEventListener('change', () => {
+        if (el.value === "blocky" || el.value === "shiny") {
+            sprite_type = el.value;
+            UserSettings.get_instance().update("sprite", sprite_type);
+        }
+    });
+    
+    await PIXI.Assets.load("/spritesheet/data.json");
+
+    // @ts-ignore
+    document.getElementById('sprite-slider')!.appendChild(app.view);
+
+    const sprites = [
+        {
+            is_done: false,
+            sprite: new PIXI.Sprite(),
+        },
+        {
+            is_done: false,
+            sprite: new PIXI.Sprite(),
+        },
+        {
+            is_done: false,
+            sprite: new PIXI.Sprite(),
+        },
+        {
+            is_done: false,
+            sprite: new PIXI.Sprite(),
+        },
+   ];
+
+    for (const s of sprites) {
+        const sprite = s.sprite;
+
+        sprite.width = width / 4;
+        sprite.height = width / 4;
+        app.stage.addChild(sprite);
+    } 
+
+    function draw() {
+        const texture = PIXI.Assets.cache.get(`${sprite_type}_${current_name.toLowerCase()}`);
+
+        for (const s of sprites) {
+            const sprite = s.sprite;
+
+            sprite.texture = texture;
+        }
+
+        let is_finished = false;
+
+        for (let y = 0; y < blocks[current_name].length; ++y) {
+            for (let x = 0; x < blocks[current_name]![y]!.length; ++x) {
+                if (blocks[current_name][y]![x] === 1) {
+
+
+                    let sprite;
+
+                    for (const s of sprites) {
+                        if (!s.is_done) {
+                            sprite = s.sprite;
+                            s.is_done = true;
+                            break;
+                        }
+                    }
+
+                    if (!sprite) {
+                        is_finished = true;
+                        break;
+                    }
+
+
+                    if (current_name === "O") {
+                        sprite.position.set(
+                            sprite.width * x + width / 2 - sprite.width / 1.5,
+                            sprite.height * y + width / 2 - sprite.height * 1.25,
+                        );
+                    } else if (current_name === "I") {
+                        sprite.position.set(
+                            sprite.width * x + width / 2 - sprite.width * 1.675,
+                            width / 2 - sprite.height / 1.5,
+                        );
+                    } else {
+                        sprite.position.set(
+                            sprite.width * x + width / 2 - sprite.width * 1.25,
+                            sprite.height * y + width / 2 - sprite.height * 1.25,
+                        );
+                    }
+                }
+            }
+
+            if (is_finished) {
+                break;
+            }
+        }
+    }
+
+    let time_elapsed_since_last_change = 0;
+    const names: TetrominoNames[] = ["O", "I", "T", "S", "Z", "J", "L"];
+    let current_idx = 0;
+
+    app.ticker.add((dt) => {
+        draw();
+
+        time_elapsed_since_last_change += dt;
+
+        if (time_elapsed_since_last_change > 60) {
+            time_elapsed_since_last_change = 0;
+            sprites.forEach(s => s.is_done = false);
+            if (current_idx === 0) {
+               current_idx = 1; 
+            } else {
+                current_idx = (current_idx + 1) % names.length;
+            }
+            current_name = names[current_idx] as TetrominoNames;
+        };
+    });
+
+</script>

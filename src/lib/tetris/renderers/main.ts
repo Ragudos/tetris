@@ -6,7 +6,7 @@ import type { TetrominoNames, tetromino_colors } from "../../../config/tetromino
 import UserSettings from "../user-settings";
 import { get_time_ease_out } from "../utils/formulas";
 
-export type Sprites = "basic" | "blocky";
+export type Sprites = "shiny" | "blocky";
 
 export default class MainRenderer extends PIXI.Container {
 	private __rows: number = config.screen.rows + 2;
@@ -110,7 +110,7 @@ export default class MainRenderer extends PIXI.Container {
 		// The fraction was acquired from
 		/** @see https://javascript.info/js-animation */
 		const fraction =
-			1 - (dt - this.__time_since_flicker) / (config.lock.delay * 2);
+			1 - (dt - this.__time_since_flicker) / (UserSettings.get_instance().lock.delay * 2);
 		const new_alpha = get_time_ease_out(fraction);
 
 		for (let y = 0; y < tetromino.shape.length; ++y) {

@@ -1,0 +1,210 @@
+---
+import Back from "../components/Back.astro";
+import Switch from "../components/Switch.astro";
+import Main from "../layouts/Main.astro";
+import config from "../lib/tetris/config";
+import SpriteSlider from "../components/SpriteSlider.astro";
+---
+
+<Main>
+    <Back />
+    <main class="container">
+        <div class="section-container">
+            <section>
+                <h1>Settings</h1>
+                
+                <div class="section">
+                    <div class="settings-name">Ghost piece</div>
+                    <div class="small">
+                        <div class="settings">
+                            <div>Enabled</div>
+                            <Switch
+                                id={"ghost-piece"}
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <div class="settings-name">Hold</div>
+                        <div class="small">
+                            <div class="settings">
+                                <div>Enabled</div>
+                                <Switch
+                                    id={"hold-enabled"}
+                                />
+                            </div>
+                            <div class="settings">
+                                <div>Infinite</div>
+                                <Switch
+                                    id={"hold-infinite"}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="settings-name">Lock</div>
+                        <div class="small">
+                            <div class="settings">
+                                <div>Enabled</div>
+                                <Switch
+                                    id={"lock-enabled"}
+                                />
+                            </div>
+                            <div class="settings">
+                                <div>Delay</div>
+                                <input id="lock-delay" type="number" min="0" max="2" />
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="settings-name">Gravity</div>
+                        <div class="small">
+                            <div class="settings">
+                                <div>Type</div>
+                                <select id="gravity-type">
+                                    {Object.keys(config.gravity.initial).map((i) => (
+                                        <option value={i}>{i.slice(0, 1).toUpperCase()}{i.slice(1, i.length)}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="settings-name">Sprite</div>
+                        <div class="small">
+                            <div class="settings">
+                                <div>Choose which sprite to use</div>
+                                <SpriteSlider />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <footer>
+        <p>This website uses localStorage to save your settings. For more information, visit:
+            <a rel="noreferrer" href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage" target="_blank">
+                https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
+            </a>
+        </p>
+    </footer>
+</Main>
+<script>
+    import UserSettings from "../lib/tetris/user-settings";
+
+    const settings = UserSettings.get_instance();
+
+    const ghost_piece_el = document.getElementById("ghost-piece") as HTMLInputElement;
+    const hold_enable_el = document.getElementById("hold-enabled") as HTMLInputElement;
+    const hold_infinite_el = document.getElementById("hold-infinite") as HTMLInputElement;
+    const lock_enable_el = document.getElementById("lock-enabled") as HTMLInputElement;
+    const lock_delay_el = document.getElementById("lock-delay") as HTMLInputElement;
+    const gravity_type_el = document.getElementById("gravity-type") as HTMLSelectElement;
+
+    ghost_piece_el.checked = settings.ghost_piece;
+    hold_enable_el.checked = settings.hold.enabled ? true : false;
+    hold_infinite_el.checked = settings.hold.infinite ? true : false;
+    lock_enable_el.checked = settings.lock.enabled ? true : false;
+    lock_delay_el.value = (settings.lock.delay / 60).toFixed(2);
+    gravity_type_el.value = settings.gravity.type;
+
+    on_off("ghost-piece");
+    on_off("hold-enabled");
+    on_off("hold-infinite");
+    on_off("lock-enabled");
+
+    function on_off(id: string) {
+        const element = document.getElementById(id) as HTMLInputElement;
+        const label = document.querySelector(`label[for="${id}"]`) as HTMLLabelElement;
+
+        label.dataset.checked = element.checked.toString();
+
+        return element.checked;
+    }
+
+    ghost_piece_el.addEventListener("change", () => {
+        settings.update("ghost_piece", on_off("ghost-piece"));
+    });
+    hold_enable_el.addEventListener("change", () => {
+        settings.update("hold", {
+            enabled: on_off("hold-enabled")
+        });
+    });
+    hold_infinite_el.addEventListener("change", () => {
+        settings.update("hold", {
+            infinite: on_off("hold-infinite")
+        });
+    });
+    lock_enable_el.addEventListener("change", () => {
+        settings.update("lock", {
+            enabled: on_off("lock-enabled")
+        });
+    });
+
+    lock_delay_el.addEventListener("change", () => {
+        if (isNaN(Number(lock_delay_el.value)) || Number(lock_delay_el.value) < 0 || Number(lock_delay_el.value) > 2) {
+            return;
+        }
+       
+        settings.update("lock", {
+            delay: Number(lock_delay_el.value) * 60
+        });
+    });
+
+    gravity_type_el.addEventListener("change", () => {
+        settings.update("gravity", {
+            type: gravity_type_el.value as typeof settings.gravity.type
+        });
+    });
+
+</script>
+<style>
+    input {
+        text-align: end;
+    }
+    .settings {
+        display: flex;
+        justify-content: space-between;
+        margin-block: 0.5rem;
+    }
+
+    .settings-name {
+        font-weight: bold;
+        text-align: left;
+    }
+
+    section {
+        width: 100%;
+    }
+    section > div {
+        margin-top: 1rem;
+        padding: 1rem;
+        border: 1px solid hsl(var(--text));
+        border-radius: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-inline: auto;
+        max-width: 25rem;
+    }
+    footer {
+        text-align: center;
+        margin-top: 2rem;
+    }
+    a {
+        text-decoration: underline;
+    }
+    .section-container {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 87.5dvh;
+    }
+    h1 {
+        text-shadow: -0.075rem 0.075rem 0.25rem hsl(var(--text));
+        margin-block: 0;
+    }
+
+</style>

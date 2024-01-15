@@ -59,6 +59,10 @@ function init() {
 	const lock_function = lock();
 	const hold_function = hold();
 
+	tetris_app.view?.addEventListener?.("focusout", () => {
+		console.log("outfocus")
+	})
+
 	window.addEventListener("keydown", keydown_handler);
 	window.addEventListener("keyup", keyup_handler);
 	tetris_events.addEventListener("tetris:lock", lock_function);
@@ -72,6 +76,10 @@ function init() {
 		}
 
 		const key = event.key;
+
+		if (key === " " || key === "ArrowDown") {
+			event.preventDefault();
+		}
 
 		if (key === game.keys.hard_drop.type) {
 			game.keys.hard_drop.press();
@@ -106,6 +114,10 @@ function init() {
 		}
 
 		const key = event.key;
+
+		if (key === " " || key === "ArrowDown") {
+			event.preventDefault();
+		}
 
 		if (key === game.keys.hard_drop.type) {
 			game.keys.hard_drop.release();

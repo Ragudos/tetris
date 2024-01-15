@@ -4,7 +4,6 @@ import type { Sprites } from "./renderers/main";
 import Observer from "./utils/observer";
 
 export default class UserSettings {
-	instant_death: boolean = false;
 	ghost_piece: boolean = true;
 	hold: {
 		enabled?: boolean;
@@ -28,7 +27,7 @@ export default class UserSettings {
 	} = {
 		type: "relaxed"
 	};
-	sprite: Sprites = "basic";
+	sprite: Sprites = "shiny";
 
 	static readonly key: string = "tetris-settings";
 
@@ -82,7 +81,7 @@ export default class UserSettings {
 		}
 	}
 
-	update<T extends keyof typeof UserSettings.__instance>(key: T, value: typeof UserSettings.__instance[T]): void {
+	update<T extends keyof typeof UserSettings.__instance>(key: T, value: Partial<typeof UserSettings.__instance[T]>): void {
 		if (key in UserSettings.__instance) {
 			if (key === "lock") {
 				// @ts-ignore
@@ -91,8 +90,20 @@ export default class UserSettings {
 				}
 			}
 
-			// @ts-ignore
-			this[key] = value;
+			if (is_object(this[key])) {
+				// @ts-ignore
+				if (is_object(value)) {
+					// @ts-ignore
+					this[key] = {
+						// @ts-ignore
+						...this[key],
+						...value
+					};
+				}
+			} else {
+				// @ts-ignore
+				this[key] = value
+			}
 			localStorage.setItem(UserSettings.key, JSON.stringify(this));
 		}
 	}

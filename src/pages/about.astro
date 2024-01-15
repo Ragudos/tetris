@@ -1,0 +1,36 @@
+---
+import Back from "../components/Back.astro"
+import Main from "../layouts/Main.astro"
+---
+
+<Main>
+    <Back />
+
+    <main class="container">
+        <section>
+            <h1>Hi, welcome to my own simplified version of Tetris.</h1>
+            <p>
+                I loved Tetris when I was a kid, and when I found out about Tetrio, it was amazing.
+                After months of learning to code, I decided to make a simple version.
+
+                I learned a lot, such as:
+
+                <ul>
+                    <li>Handling 2D arrays like rotations</li>
+                    <li>Using sprites</li>
+                    <li>Timers like animation loops</li>
+                    <li>Some knowledge of PIXI.js</li>
+                    <li>Abstract way of knowing when a key is pressed.</li>
+                    <li>Collision detection</li>
+                    <li>And more...</li>
+                </ul>
+            </p>
+            <p>I hope you enjoy my work!</p>
+        </section>
+    </main>
+    <style>
+        li {
+            font-size: 1rem;
+        }
+    </style>
+</Main>

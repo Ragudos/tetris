@@ -17,7 +17,7 @@ export const DEFAULT_KEYS: {
 	move_right: "ArrowRight",
 	soft_drop: "ArrowDown",
 	hard_drop: " ",
-	rotate_left: "Ctrl",
+	rotate_left: "Control",
 	rotate_right: "ArrowUp",
 	hold: "Shift",
 } as const;

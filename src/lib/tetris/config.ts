@@ -17,15 +17,15 @@ export default {
 	},
 	lock: {
 		max_resets: 20,
-		delay: 50,
+		delay: 60,
 	},
 	base_position: new XY(4, 0),
 	gravity: {
 		initial: {
 			subzero: null,
 			relaxed: 60,
-			engaging: 25,
-			spicy: 10,
+			engaging: 30,
+			spicy: 15,
 			/**
 			 * 1 is the maximum speed we can get, so
 			 * for 1, we will instantly make the piece
@@ -33,6 +33,6 @@ export default {
 			 */
 			static: 1,
 		},
-		decrement_per_level: 0.075,
+		decrement_per_level: 0.007,
 	},
 };

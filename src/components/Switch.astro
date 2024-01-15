@@ -1,0 +1,73 @@
+---
+export interface Props extends Omit<astroHTML.JSX.InputHTMLAttributes, "type"> {
+}
+
+let {
+    id,
+    checked,
+    onchange,
+    name,
+    ...props
+} = Astro.props;
+
+if (!checked) {
+    checked = false;
+}
+
+---
+
+<label for={id} data-checked={checked} aria-label={name || "switch"}>
+    <input
+        type="checkbox"
+        id={id}
+        checked={checked}
+        {...props}
+    >
+    <span role="presentation" />
+    <div class="sr-only">{id}</div>
+</label>
+<style>
+    input {
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        border: none;
+    }
+
+    label {
+        display: block;
+        position: relative;
+        width: 3rem;
+        height: 1.5rem;
+        border-radius: 10rem;
+        border: 1px solid hsl(var(--text));
+
+        transition: background-color 0.2s ease;
+    }
+
+    label span {
+        display: block;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%) translateX(var(--_x, 10%));
+        left: 0;
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 50%;
+        background: hsl(var(--text));
+        transition: transform 0.2s ease;
+
+        touch-action: none;
+        pointer-events: none;
+    }
+
+    label[data-checked=true] {
+        background: hsl(var(--text));
+    }
+
+    label[data-checked=true] span {
+        --_x: 125%;
+        background-color: hsl(var(--background));
+    }
+</style>

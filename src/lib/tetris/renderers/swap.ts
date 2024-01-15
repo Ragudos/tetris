@@ -3,18 +3,7 @@ import config from "../config";
 import type { TetrominoNames } from "../../../config/tetromino";
 import type { Sprites } from "./main";
 import type Game from "../game";
-
-export const blocks: {
-    [Property in TetrominoNames]: number[][]
-} = {
-    I: [[1, 1, 1, 1]],
-    O: [[1, 1], [1, 1]],
-    T: [[0, 1, 0], [1, 1, 1]],
-    S: [[0, 1, 1], [1, 1, 0]],
-    Z: [[1, 1, 0], [0, 1, 1]],
-    J: [[1, 0, 0], [1, 1, 1]],
-    L: [[0, 0, 1], [1, 1, 1]],
-}
+import { blocks } from "../../consts";
 
 export default class SwapRenderer extends PIXI.Container {
     readonly block_size = config.display.block_size / 1.5;
@@ -122,6 +111,7 @@ export default class SwapRenderer extends PIXI.Container {
                 for (const s of this.__sprites) {
                     if (!s.is_done) {
                         sprite = s;
+                        s.is_done = true;
                         break;
                     }
                 }
@@ -147,8 +137,6 @@ export default class SwapRenderer extends PIXI.Container {
                         sprite.sprite.height * y  + config.display.side_width / 2 - sprite.sprite.height,
                     );
                 }
-
-                sprite.is_done = true;
             }
 
             if (is_finished) {

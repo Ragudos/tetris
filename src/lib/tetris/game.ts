@@ -358,7 +358,7 @@ export default class Game {
 			return;
 		}
 
-		if (!this.__lock.is_locked) {
+		if (!this.__lock.is_locked && this.__drop.gravity !== null) {
             // If zero or null, means we are using static gravity
             // so we place a tetromino at the floor instantly
             if (!this.__drop.gravity) {
@@ -379,6 +379,15 @@ export default class Game {
 					this.__move_down();
 				}           
             }
+		} else if (!this.__lock.is_locked && this.__drop.gravity === null) {
+			if (this.__drop.soft_drop()) {
+				if (
+					this.__time_storage.time_since_last_drop >=
+					this.__drop.soft_drop_gravity
+				) {
+					this.__move_down();
+				}
+			}
 		} else {
 			if (
 				this.__time_storage.time_since_lock_delay_started >=
@@ -468,6 +477,19 @@ export default class Game {
 	spawn_new_tetromino(): void {
 		this.__next_tetromino.position.x = 4;
 		this.__next_tetromino.position.y = 0;
+
+		if (this.__screen.is_colliding_down(
+			this.__next_tetromino.position,
+			this.__next_tetromino.shape,
+			1
+		) && this.__screen.is_colliding_up(
+			this.__next_tetromino.position,
+			this.__next_tetromino.shape,
+			0
+		)) {
+			this.gameover();
+			return;
+		}
 
         if (
             this.__screen.is_colliding_up(this.__next_tetromino.position, this.__next_tetromino.shape, 0)

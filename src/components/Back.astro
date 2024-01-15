@@ -1,0 +1,23 @@
+<button
+			type="button"
+			id="back-button"
+		>
+			Back
+		</button>
+		<script>
+			(function() {
+				const backButton = document.getElementById("back-button");
+				backButton?.addEventListener("click", () => {
+					window.history.back();
+				});
+			})();
+		</script>
+		<style>
+			#back-button {
+				position: fixed;
+				top: 1rem;
+				right: 1rem;
+				font-weight: 700;
+				font-size: 1.25rem;
+			}
+		</style>
