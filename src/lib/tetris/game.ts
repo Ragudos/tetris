@@ -16,6 +16,7 @@ import MainRenderer, { type Sprites } from "./renderers/main";
 import SwapRenderer from "./renderers/swap";
 import NextRenderer from "./renderers/next";
 import tetrisEvents from "./events";
+import events from "./events";
 
 export type GameStates = "running" | "paused" | "gameover" | "not_started";
 
@@ -122,7 +123,8 @@ export default class Game {
 		this.__renderer.reset_flicker();
 		this.__renderer.brighten_block();
 		this.state = "gameover";
-        console.log("gameover");
+		console.log("hi")
+		events.$emit("tetris:gameover", {});
 	}
 
 	private __move_down(): void {
@@ -133,7 +135,11 @@ export default class Game {
 				1,
 			)
 		) {
-			this.__lock.start_locking();
+			if (UserSettings.get_instance().lock.enabled) {
+				this.__lock.start_locking();
+			} else {
+				this.lock_current_block();
+			}
 
 			return;
 		}
@@ -327,6 +333,8 @@ export default class Game {
 
 		this.__lock.stop_locking();
 
+		this.__renderer.reset_flicker();
+		this.__renderer.brighten_block();
         this.recalculate_ghost_y();
 		this.__swap_renderer.reset_positions();
 		tetrisEvents.$emit("tetris:hold", {
@@ -376,22 +384,6 @@ export default class Game {
 				this.__time_storage.time_since_lock_delay_started >=
 				this.__lock.lock_delay
 			) {
-				if (
-					this.__screen.is_colliding_down(
-						this.__current_tetromino.position,
-						this.__current_tetromino.shape,
-						1,
-					) &&
-					this.__screen.is_colliding_up(
-						this.__current_tetromino.position,
-						this.__current_tetromino.shape,
-						0,
-					)
-				) {
-					this.gameover();
-					return;
-				}
-
 				if (
 					!this.__screen.is_colliding_down(
 						this.__current_tetromino.position,
@@ -531,14 +523,6 @@ export default class Game {
 	}
 
 	lock_current_block(): void {
-        if (
-            this.__screen.is_colliding_up(this.__current_tetromino.position, this.__current_tetromino.shape, 0)
-            && this.__screen.is_colliding_down(this.__current_tetromino.position, this.__current_tetromino.shape, 1)
-        ) {
-            this.gameover();
-            return;
-        }
-
 		this.__screen.occupy_grid(this.__current_tetromino);
 		this.__lock.stop_locking();
 		this.__renderer.reset_flicker();
@@ -548,6 +532,14 @@ export default class Game {
 		this.recalculate_ghost_y();
 		this.__time_storage.time_since_last_drop = 0;
 		tetrisEvents.$emit("tetris:lock", {});
+	}
+
+	get swap_renderer() {
+		return this.__swap_renderer;
+	}
+
+	get next_renderer() {
+		return this.__next_renderer;
 	}
 
 	get renderer() {

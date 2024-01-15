@@ -34,7 +34,7 @@ interface Tetrisevents {
     "tetris:lock": TetrisEventsDataBase;
 }
 
-interface TetrisEventsMap {
+export interface TetrisEventsMap {
     "tetris:move": CustomEvent<Tetrisevents["tetris:move"]>;
     "tetris:rotate": CustomEvent<Tetrisevents["tetris:rotate"]>;
     "tetris:drop": CustomEvent<Tetrisevents["tetris:drop"]>;

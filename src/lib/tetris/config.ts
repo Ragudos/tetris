@@ -12,7 +12,7 @@ export default {
 		rows: 20,
 	},
 	controls: {
-		delay: 4,
+		delay: 2,
 		initial_delay: 10,
 	},
 	lock: {
@@ -23,7 +23,7 @@ export default {
 	gravity: {
 		initial: {
 			subzero: null,
-			relaxed: 100,
+			relaxed: 60,
 			engaging: 25,
 			spicy: 10,
 			/**

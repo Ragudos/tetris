@@ -52,7 +52,11 @@ export default class Lock {
 				1,
 			)
 		) {
-			this.start_locking();
+			if (UserSettings.get_instance().lock.enabled){
+				this.start_locking();
+			} else {
+				this.__game.lock_current_block();
+			}
 		}
 	}
 

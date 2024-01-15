@@ -75,13 +75,13 @@ export default class SwapRenderer extends PIXI.Container {
             this.addChild(sprite);
         }
 
-        this.__text = new PIXI.Text("SWAP", {
+        this.__text = new PIXI.Text("Hold", {
             fill: "#fff",
             fontSize: 24,
             fontWeight: "bold",
         });
 
-        this.__text.position.set(24, -32);
+        this.__text.position.set(32, -32);
 
         this.addChild(this.__text);
     }

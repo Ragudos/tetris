@@ -4,7 +4,7 @@ import UserSettings from "../user-settings";
 import { get_gravity } from "./formulas";
 
 export default class Drop {
-	private __gravity: number | null = 100;
+	private __gravity: number | null = config.gravity.initial[UserSettings.get_instance().gravity.type];
 	private __gravity_limit: number = 0.2;
 	private __soft_drop_gravity: number = Math.round(this.__gravity as number * 0.0075);
 
@@ -44,7 +44,6 @@ export default class Drop {
 			this.__game.screen.is_colliding_up(tmp_pos, block.shape, 2) &&
 			this.__game.screen.is_colliding_down(tmp_pos, block.shape, 1)
 		) {
-            console.log("hi")
 			this.__game.gameover();
 			return;
 		}

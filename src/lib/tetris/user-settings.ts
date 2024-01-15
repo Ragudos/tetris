@@ -1,5 +1,6 @@
 import type { KickData } from "../../config/tetromino";
 import config from "./config";
+import type { Sprites } from "./renderers/main";
 import Observer from "./utils/observer";
 
 export default class UserSettings {
@@ -27,6 +28,7 @@ export default class UserSettings {
 	} = {
 		type: "relaxed"
 	};
+	sprite: Sprites = "basic";
 
 	static readonly key: string = "tetris-settings";
 

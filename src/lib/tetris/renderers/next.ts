@@ -72,7 +72,7 @@ export default class NextRenderer extends PIXI.Container {
         });
 
         this.__text.position.set(
-            24,
+            32,
             -32
         )
 
