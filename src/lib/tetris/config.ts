@@ -31,7 +31,7 @@ export default {
 			 * for 1, we will instantly make the piece
 			 * go to the floor.
 			 */
-			static: 1,
+			static: 0,
 		},
 		decrement_per_level: 0.007,
 	},
