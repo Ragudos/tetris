@@ -488,7 +488,7 @@ export default class Game {
 				this.__current_tetromino.position,
 				this.__current_tetromino.shape,
 				0
-			) && this.__current_tetromino.position.x === 0
+			) && this.__current_tetromino.position.y === 0
 		) {
 			this.gameover();
 			return;
