@@ -226,7 +226,7 @@ function init() {
 				tracker = tracker - 10;
 				document.getElementById("level")!.textContent =
 					level.toString();
-				if (game.gravity) {
+				if (game.gravity !== null && game.gravity !== 0) {
 					game.gravity = get_gravity(level, game.gravity);
 				}
 			}

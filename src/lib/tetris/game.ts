@@ -361,7 +361,7 @@ export default class Game {
 		if (!this.__lock.is_locked && this.__drop.gravity !== null) {
 			// If zero or null, means we are using static gravity
 			// so we place a tetromino at the floor instantly
-			if (!this.__drop.gravity) {
+			if (this.__drop.gravity <= 0) {
 				this.__drop.hard_drop(false);
 				this.__lock.start_locking();
 			} else {
